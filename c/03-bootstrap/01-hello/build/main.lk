@@ -1,0 +1,11 @@
+-mjwx
+-i build\main.ihx
+-y
+-b _CODE = 0x0200
+-b _DATA = 0xc000
+-k C:\Program Files\SDCC\bin\..\lib\gbz80
+-l gbz80
+C:\Program Files\SDCC\bin\..\lib\gbz80\crt0.rel
+build\main.rel
+
+-e

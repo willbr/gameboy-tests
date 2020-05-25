@@ -1,0 +1,107 @@
+;!FILE build\main.asm
+XL2
+H 7 areas 43 global symbols
+M main
+O -mgbz80
+S _tiles Def9000
+S G$tiles$0_0$0 Def9000
+S G$LY$0_0$0 Def0044
+S G$LYC$0_0$0 Def0045
+S G$SCX$0_0$0 Def0043
+S G$SCY$0_0$0 Def0042
+S G$STAT$0_0$0 Def0041
+S .__.ABS. Def0000
+S _bgmap Def9800
+S ___memcpy Ref0000
+S G$bgmap$0_0$0 Def9800
+S G$NR52$0_0$0 Def0026
+S _memset Ref0000
+S G$LCDC$0_0$0 Def0040
+S G$BGP$0_0$0 Def0047
+A _CODE size 74 flags 0 addr 0
+S A$maind\main$94 Def0016
+S A$maind\main$95 Def0019
+S A$maind\main$77 Def0000
+S A$maind\main$78 Def0002
+S A$maind\main$88 Def000A
+S A$maind\main$79 Def0004
+S A$maind\main$89 Def000D
+S _main Def0000
+S A$maind\main$99 Def001B
+S XG$main$0$0 Def0043
+S _font_tiles Def0044
+S G$font_tiles$0_0$0 Def0044
+S C$main.c$81$1_0$25 Def0006
+S C$main.c$91$1_0$25 Def0031
+S C$main.c$92$1_0$25 Def0035
+S C$main.c$83$1_0$25 Def000A
+S C$main.c$94$1_0$25 Def0039
+S C$main.c$85$1_0$25 Def001B
+S C$main.c$86$1_0$25 Def001C
+S C$main.c$78$0_0$25 Def0000
+S C$main.c$96$1_0$25 Def003D
+S C$main.c$79$1_0$25 Def0000
+S C$main.c$98$1_0$25 Def0041
+S C$main.c$89$1_0$25 Def002D
+S C$main.c$99$1_0$25 Def0043
+S A$maind\main$110 Def002B
+S A$maind\main$120 Def0033
+S A$maind\main$130 Def003B
+S A$maind\main$103 Def001C
+S A$maind\main$140 Def0041
+S A$maind\main$104 Def001F
+S A$maind\main$114 Def002D
+S A$maind\main$105 Def0020
+S A$maind\main$124 Def0035
+S A$maind\main$115 Def002F
+S A$maind\main$106 Def0023
+S A$maind\main$134 Def003D
+S A$maind\main$125 Def0037
+S A$maind\main$107 Def0024
+S A$maind\main$135 Def003F
+S A$maind\main$108 Def0027
+S A$maind\main$109 Def0028
+S A$maind\main$119 Def0031
+S A$maind\main$129 Def0039
+S A$maind\main$148 Def0043
+S G$main$0$0 Def0000
+S A$maind\main$90 Def000E
+S A$maind\main$91 Def0011
+S A$maind\main$92 Def0012
+S A$maind\main$83 Def0006
+S A$maind\main$93 Def0015
+S A$maind\main$84 Def0008
+A _DATA size 0 flags 0 addr 0
+A _DABS size 0 flags 8 addr 0
+A _HOME size 0 flags 0 addr 0
+A _GSINIT size 0 flags 0 addr 0
+A _GSFINAL size 0 flags 0 addr 0
+A _CABS size 0 flags 8 addr 0
+T 00 00
+R 00 00 00 00
+T 00 00
+R 00 00 00 00
+T 00 00 F0 44 D6 90 38 FA 3E 00 E0 40 21 30 00 E5
+R 00 00 00 00
+T 0E 00 21 44 00 E5 21 00 90 E5 CD 00 00 E8 06 40
+R 00 00 00 00 00 03 00 00 02 0B 09 00
+T 1C 00 21 68 01 E5 21 00 00 E5 21 00 98 E5 CD
+R 00 00 00 00
+T 29 00 00 00 E8 06 3E E4 E0 47 3E 00 E0 42 3E 00
+R 00 00 00 00 02 02 0C 00
+T 37 00 E0 43 3E 00 E0 26 3E 81 E0 40
+R 00 00 00 00
+T 41 00
+R 00 00 00 00
+T 41 00 18 FE C9
+R 00 00 00 00
+T 44 00
+R 00 00 00 00
+T 44 00 01 01 02 02 04 04 08 08 10 10 20 20 40 40
+R 00 00 00 00
+T 52 00 80 80 80 80 40 40 20 20 10 10 08 08 04 04
+R 00 00 00 00
+T 60 00 02 02 01 01 81 81 42 42 24 24 18 18 18 18
+R 00 00 00 00
+T 6E 00 24 24 42 42 81 81
+R 00 00 00 00
