@@ -1,0 +1,55 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  2710 L
+    .__.ABS.                                                    =  0000 G
+    .__.CPU.                                                    =  0000 L
+    .__.H$L.                                                    =  0000 L
+  0 A$main$108                                                     0014 GR
+  0 A$main$56                                                      0000 GR
+  0 A$main$57                                                      0003 GR
+  0 A$main$58                                                      0004 GR
+  0 A$main$59                                                      0005 GR
+  0 A$main$67                                                      0006 GR
+  0 A$main$80                                                      0007 GR
+  0 A$main$84                                                      0008 GR
+  0 A$main$88                                                      000B GR
+  0 A$main$89                                                      000E GR
+  0 A$main$93                                                      0010 GR
+  0 A$main$97                                                      0013 GR
+  0 C$main.c$10$1_0$2                                           =  0007 GR
+  0 C$main.c$11$1_0$2                                           =  0007 GR
+  0 C$main.c$12$1_0$2                                           =  0008 GR
+  0 C$main.c$13$1_0$2                                           =  000B GR
+  0 C$main.c$14$1_0$2                                           =  0010 GR
+  0 C$main.c$15$1_0$2                                           =  0013 GR
+  0 C$main.c$16$1_0$2                                           =  0014 GR
+  0 C$main.c$17$1_0$2                                           =  0014 GR
+  0 C$main.c$6$0_0$1                                            =  0000 GR
+  0 C$main.c$7$1_0$1                                            =  0000 GR
+  0 C$main.c$8$1_0$1                                            =  0006 GR
+  0 G$inc$0$0                                                   =  0000 GR
+  0 G$main$0$0                                                  =  0007 GR
+  1 G$test$0_0$0                                                =  0000 GR
+  0 XG$inc$0$0                                                  =  0006 GR
+  0 XG$main$0$0                                                 =  0014 GR
+  0 _inc                                                           0000 GR
+  0 _main                                                          0007 GR
+  1 _test                                                          0000 GR
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 2.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE                                      size   17   flags    0
+   1 _DATA                                      size    1   flags    0
+   2 _DABS                                      size    0   flags    8
+   3 _HOME                                      size    0   flags    0
+   4 _GSINIT                                    size    0   flags    0
+   5 _GSFINAL                                   size    0   flags    0
+   6 _CABS                                      size    0   flags    8
+

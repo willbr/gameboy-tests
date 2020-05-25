@@ -1,0 +1,27 @@
+DEF .__.ABS. 0x0
+DEF l__CABS 0x0
+DEF l__DABS 0x0
+DEF l__GSFINAL 0x0
+DEF l__GSINIT 0x0
+DEF l__HOME 0x0
+DEF s__CABS 0x0
+DEF s__DABS 0x0
+DEF l__DATA 0x1
+DEF l__CODE 0x6
+DEF s__CODE 0x200
+DEF s__DATA 0xC000
+DEF s__GSFINAL 0xC001
+DEF s__GSINIT 0xC001
+DEF s__HOME 0xC001
+DEF A$main$55 0x200
+DEF C$main.c$3$0_0$1 0x200
+DEF C$main.c$4$1_0$1 0x200
+DEF G$main$0$0 0x200
+DEF _main 0x200
+DEF A$main$56 0x203
+DEF A$main$64 0x205
+DEF C$main.c$5$1_0$1 0x205
+DEF XG$main$0$0 0x205
+DEF G$test$0_0$0 0xC000
+DEF _test 0xC000
+LOAD main.ihx

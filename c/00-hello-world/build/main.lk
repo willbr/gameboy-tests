@@ -1,0 +1,8 @@
+-mjwx
+-i main.ihx
+-y
+-b _CODE = 0x0200
+-b _DATA = 0xc000
+main.rel
+
+-e
