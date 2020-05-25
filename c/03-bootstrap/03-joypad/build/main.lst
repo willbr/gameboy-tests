@@ -1,0 +1,735 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 4.0.0 #11528 (MINGW64)
+                              4 ;--------------------------------------------------------
+                              5 	.module main
+                              6 	.optsdcc -mgbz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _joypad_isr
+                             12 	.globl _serial_isr
+                             13 	.globl _lcd_isr
+                             14 	.globl _vblank_isr
+                             15 	.globl _timer_isr
+                             16 	.globl _main
+                             17 	.globl ___memcpy
+                             18 	.globl _memset
+                             19 	.globl _joypad_btn_state
+                             20 	.globl _joypad_dpad_state
+                             21 	.globl _joypad
+                             22 	.globl _bgmap
+                             23 	.globl _tiles
+                             24 	.globl _font_tiles
+                             25 	.globl _IEF_VBLANK
+                             26 	.globl _IEF_LCDC
+                             27 	.globl _IEF_TIMER
+                             28 	.globl _IEF_SERIAL
+                             29 	.globl _IEF_HILO
+                             30 	.globl _poll_joypad
+                             31 ;--------------------------------------------------------
+                             32 ; special function registers
+                             33 ;--------------------------------------------------------
+                     0000    34 G$p1_joypad$0_0$0 == 0x0000
+                     0000    35 _p1_joypad	=	0x0000
+                     000F    36 G$interrupt_flag$0_0$0 == 0x000f
+                     000F    37 _interrupt_flag	=	0x000f
+                     00FF    38 G$interrupt_enable$0_0$0 == 0x00ff
+                     00FF    39 _interrupt_enable	=	0x00ff
+                     0026    40 G$NR52$0_0$0 == 0x0026
+                     0026    41 _NR52	=	0x0026
+                     0040    42 G$LCDC$0_0$0 == 0x0040
+                     0040    43 _LCDC	=	0x0040
+                     0041    44 G$STAT$0_0$0 == 0x0041
+                     0041    45 _STAT	=	0x0041
+                     0042    46 G$SCY$0_0$0 == 0x0042
+                     0042    47 _SCY	=	0x0042
+                     0043    48 G$SCX$0_0$0 == 0x0043
+                     0043    49 _SCX	=	0x0043
+                     0044    50 G$LY$0_0$0 == 0x0044
+                     0044    51 _LY	=	0x0044
+                     0045    52 G$LYC$0_0$0 == 0x0045
+                     0045    53 _LYC	=	0x0045
+                     0047    54 G$BGP$0_0$0 == 0x0047
+                     0047    55 _BGP	=	0x0047
+                             56 ;--------------------------------------------------------
+                             57 ; ram data
+                             58 ;--------------------------------------------------------
+                             59 	.area _DATA
+                     9000    60 G$tiles$0_0$0 == 0x9000
+                     9000    61 _tiles	=	0x9000
+                     9800    62 G$bgmap$0_0$0 == 0x9800
+                     9800    63 _bgmap	=	0x9800
+                     0000    64 G$joypad$0_0$0==.
+   0000                      65 _joypad::
+   0000                      66 	.ds 1
+                     0001    67 G$joypad_dpad_state$0_0$0==.
+   0001                      68 _joypad_dpad_state::
+   0001                      69 	.ds 1
+                     0002    70 G$joypad_btn_state$0_0$0==.
+   0002                      71 _joypad_btn_state::
+   0002                      72 	.ds 1
+                             73 ;--------------------------------------------------------
+                             74 ; absolute external ram data
+                             75 ;--------------------------------------------------------
+                             76 	.area _DABS (ABS)
+                             77 ;--------------------------------------------------------
+                             78 ; global & static initialisations
+                             79 ;--------------------------------------------------------
+                             80 	.area _HOME
+                             81 	.area _GSINIT
+                             82 	.area _GSFINAL
+                             83 	.area _GSINIT
+                     0000    84 	C$main.c$113$1_0$41	= .
+                             85 	.globl	C$main.c$113$1_0$41
+                             86 ;src\main.c:113: u8 joypad = 0;
+   0000 21r00r00             87 	ld	hl, #_joypad
+   0003 36 00                88 	ld	(hl), #0x00
+                     0005    89 	C$main.c$114$1_0$41	= .
+                             90 	.globl	C$main.c$114$1_0$41
+                             91 ;src\main.c:114: u8 joypad_dpad_state = 0;
+   0005 21r01r00             92 	ld	hl, #_joypad_dpad_state
+   0008 36 00                93 	ld	(hl), #0x00
+                     000A    94 	C$main.c$115$1_0$41	= .
+                             95 	.globl	C$main.c$115$1_0$41
+                             96 ;src\main.c:115: u8 joypad_btn_state = 0;
+   000A 21r02r00             97 	ld	hl, #_joypad_btn_state
+   000D 36 00                98 	ld	(hl), #0x00
+                             99 ;--------------------------------------------------------
+                            100 ; Home
+                            101 ;--------------------------------------------------------
+                            102 	.area _HOME
+                            103 	.area _HOME
+                            104 ;--------------------------------------------------------
+                            105 ; code
+                            106 ;--------------------------------------------------------
+                            107 	.area _CODE
+                     0000   108 	G$main$0$0	= .
+                            109 	.globl	G$main$0$0
+                     0000   110 	C$main.c$117$0_0$26	= .
+                            111 	.globl	C$main.c$117$0_0$26
+                            112 ;src\main.c:117: void main() {
+                            113 ;	---------------------------------
+                            114 ; Function main
+                            115 ; ---------------------------------
+   0000                     116 _main::
+                     0000   117 	C$main.c$119$2_0$27	= .
+                            118 	.globl	C$main.c$119$2_0$27
+                            119 ;src\main.c:119: while (LY < 144) {} /* wait until vblank */
+   0000 F3                  120 	di
+   0001                     121 00101$:
+   0001 F0 44               122 	ldh	a, (_LY+0)
+   0003 D6 90               123 	sub	a, #0x90
+   0005 38 FA               124 	jr	C,00101$
+   0007 FB                  125 	ei
+                     0008   126 	C$main.c$121$2_0$27	= .
+                            127 	.globl	C$main.c$121$2_0$27
+                            128 ;src\main.c:121: LCDC = 0;
+   0008 3E 00               129 	ld	a, #0x00
+   000A E0 40               130 	ldh	(_LCDC+0),a
+                     000C   131 	C$main.c$123$2_0$27	= .
+                            132 	.globl	C$main.c$123$2_0$27
+                            133 ;src\main.c:123: memcpy(&tiles, &font_tiles, sizeof(font_tiles));
+   000C 21 40 00            134 	ld	hl, #0x0040
+   000F E5                  135 	push	hl
+   0010 21rA6r01            136 	ld	hl, #_font_tiles
+   0013 E5                  137 	push	hl
+   0014 21 00 90            138 	ld	hl, #_tiles
+   0017 E5                  139 	push	hl
+   0018 CDr00r00            140 	call	___memcpy
+   001B E8 06               141 	add	sp, #6
+                     001D   142 	C$main.c$126$2_0$27	= .
+                            143 	.globl	C$main.c$126$2_0$27
+                            144 ;src\main.c:126: memset(&bgmap, 0, 360);
+   001D 21 68 01            145 	ld	hl, #0x0168
+   0020 E5                  146 	push	hl
+   0021 21 00 00            147 	ld	hl, #0x0000
+   0024 E5                  148 	push	hl
+   0025 21 00 98            149 	ld	hl, #_bgmap
+   0028 E5                  150 	push	hl
+   0029 CDr00r00            151 	call	_memset
+   002C E8 06               152 	add	sp, #6
+                     002E   153 	C$main.c$129$2_0$27	= .
+                            154 	.globl	C$main.c$129$2_0$27
+                            155 ;src\main.c:129: BGP = 0b11100100;
+   002E 3E E4               156 	ld	a, #0xe4
+   0030 E0 47               157 	ldh	(_BGP+0),a
+                     0032   158 	C$main.c$131$2_0$27	= .
+                            159 	.globl	C$main.c$131$2_0$27
+                            160 ;src\main.c:131: SCY = 0;
+   0032 3E 00               161 	ld	a, #0x00
+   0034 E0 42               162 	ldh	(_SCY+0),a
+                     0036   163 	C$main.c$132$2_0$27	= .
+                            164 	.globl	C$main.c$132$2_0$27
+                            165 ;src\main.c:132: SCX = 0;
+   0036 3E 00               166 	ld	a, #0x00
+   0038 E0 43               167 	ldh	(_SCX+0),a
+                     003A   168 	C$main.c$134$2_0$27	= .
+                            169 	.globl	C$main.c$134$2_0$27
+                            170 ;src\main.c:134: NR52 = 0;
+   003A 3E 00               171 	ld	a, #0x00
+   003C E0 26               172 	ldh	(_NR52+0),a
+                     003E   173 	C$main.c$136$2_0$27	= .
+                            174 	.globl	C$main.c$136$2_0$27
+                            175 ;src\main.c:136: LCDC = 0b10000001;
+   003E 3E 81               176 	ld	a, #0x81
+   0040 E0 40               177 	ldh	(_LCDC+0),a
+                     0042   178 	C$main.c$139$1_0$26	= .
+                            179 	.globl	C$main.c$139$1_0$26
+                            180 ;src\main.c:139: __asm__("ei");
+   0042 FB                  181 	ei
+                     0043   182 	C$main.c$140$1_0$26	= .
+                            183 	.globl	C$main.c$140$1_0$26
+                            184 ;src\main.c:140: interrupt_enable |= IEF_VBLANK;
+   0043 21rA5r01            185 	ld	hl, #_IEF_VBLANK
+   0046 4E                  186 	ld	c, (hl)
+   0047 F0 FF               187 	ldh	a, (_interrupt_enable+0)
+   0049 B1                  188 	or	a, c
+   004A E0 FF               189 	ldh	(_interrupt_enable+0),a
+                     004C   190 	C$main.c$142$1_0$26	= .
+                            191 	.globl	C$main.c$142$1_0$26
+                            192 ;src\main.c:142: while(1) {
+   004C                     193 00105$:
+                     004C   194 	C$main.c$144$2_0$29	= .
+                            195 	.globl	C$main.c$144$2_0$29
+                            196 ;src\main.c:144: "nop");
+   004C 76                  197 	halt
+   004D 00                  198 	nop
+                     004E   199 	C$main.c$152$2_0$29	= .
+                            200 	.globl	C$main.c$152$2_0$29
+                            201 ;src\main.c:152: *(&bgmap + 15) = joypad & 0b00000001 ? 3 : 0;
+   004E 21r00r00            202 	ld	hl, #_joypad
+   0051 7E                  203 	ld	a, (hl)
+   0052 0F                  204 	rrca
+   0053 30 05               205 	jr	NC,00109$
+   0055 01 03 00            206 	ld	bc, #0x0003
+   0058 18 03               207 	jr	00110$
+   005A                     208 00109$:
+   005A 01 00 00            209 	ld	bc, #0x0000
+   005D                     210 00110$:
+   005D 21 0F 98            211 	ld	hl, #(_bgmap + 0x000f)
+   0060 71                  212 	ld	(hl), c
+                     0061   213 	C$main.c$155$2_0$29	= .
+                            214 	.globl	C$main.c$155$2_0$29
+                            215 ;src\main.c:155: *(&bgmap + 32 +  0) = joypad & 0b00010000 ? 3 : 0;
+   0061 21r00r00            216 	ld	hl, #_joypad
+   0064 7E                  217 	ld	a, (hl)
+   0065 CB 67               218 	bit	4, a
+   0067 28 05               219 	jr	Z,00111$
+   0069 01 03 00            220 	ld	bc, #0x0003
+   006C 18 03               221 	jr	00112$
+   006E                     222 00111$:
+   006E 01 00 00            223 	ld	bc, #0x0000
+   0071                     224 00112$:
+   0071 21 20 98            225 	ld	hl, #(_bgmap + 0x0020)
+   0074 71                  226 	ld	(hl), c
+                     0075   227 	C$main.c$156$2_0$29	= .
+                            228 	.globl	C$main.c$156$2_0$29
+                            229 ;src\main.c:156: *(&bgmap + 32 +  1) = joypad & 0b00100000 ? 3 : 0;
+   0075 21r00r00            230 	ld	hl, #_joypad
+   0078 7E                  231 	ld	a, (hl)
+   0079 CB 6F               232 	bit	5, a
+   007B 28 05               233 	jr	Z,00113$
+   007D 01 03 00            234 	ld	bc, #0x0003
+   0080 18 03               235 	jr	00114$
+   0082                     236 00113$:
+   0082 01 00 00            237 	ld	bc, #0x0000
+   0085                     238 00114$:
+   0085 21 21 98            239 	ld	hl, #(_bgmap + 0x0021)
+   0088 71                  240 	ld	(hl), c
+                     0089   241 	C$main.c$157$2_0$29	= .
+                            242 	.globl	C$main.c$157$2_0$29
+                            243 ;src\main.c:157: *(&bgmap + 32 +  2) = joypad & 0b01000000 ? 3 : 0;
+   0089 21r00r00            244 	ld	hl, #_joypad
+   008C 7E                  245 	ld	a, (hl)
+   008D CB 77               246 	bit	6, a
+   008F 28 05               247 	jr	Z,00115$
+   0091 01 03 00            248 	ld	bc, #0x0003
+   0094 18 03               249 	jr	00116$
+   0096                     250 00115$:
+   0096 01 00 00            251 	ld	bc, #0x0000
+   0099                     252 00116$:
+   0099 21 22 98            253 	ld	hl, #(_bgmap + 0x0022)
+   009C 71                  254 	ld	(hl), c
+                     009D   255 	C$main.c$158$2_0$29	= .
+                            256 	.globl	C$main.c$158$2_0$29
+                            257 ;src\main.c:158: *(&bgmap + 32 +  3) = joypad & 0b10000000 ? 3 : 0;
+   009D 21r00r00            258 	ld	hl, #_joypad
+   00A0 7E                  259 	ld	a, (hl)
+   00A1 07                  260 	rlca
+   00A2 30 05               261 	jr	NC,00117$
+   00A4 01 03 00            262 	ld	bc, #0x0003
+   00A7 18 03               263 	jr	00118$
+   00A9                     264 00117$:
+   00A9 01 00 00            265 	ld	bc, #0x0000
+   00AC                     266 00118$:
+   00AC 21 23 98            267 	ld	hl, #(_bgmap + 0x0023)
+   00AF 71                  268 	ld	(hl), c
+                     00B0   269 	C$main.c$160$2_0$29	= .
+                            270 	.globl	C$main.c$160$2_0$29
+                            271 ;src\main.c:160: *(&bgmap + 32 + 4) = joypad & 0b00000001 ? 3 : 0;
+   00B0 21r00r00            272 	ld	hl, #_joypad
+   00B3 7E                  273 	ld	a, (hl)
+   00B4 0F                  274 	rrca
+   00B5 30 05               275 	jr	NC,00119$
+   00B7 01 03 00            276 	ld	bc, #0x0003
+   00BA 18 03               277 	jr	00120$
+   00BC                     278 00119$:
+   00BC 01 00 00            279 	ld	bc, #0x0000
+   00BF                     280 00120$:
+   00BF 21 24 98            281 	ld	hl, #(_bgmap + 0x0024)
+   00C2 71                  282 	ld	(hl), c
+                     00C3   283 	C$main.c$161$2_0$29	= .
+                            284 	.globl	C$main.c$161$2_0$29
+                            285 ;src\main.c:161: *(&bgmap + 32 + 5) = joypad & 0b00000010 ? 3 : 0;
+   00C3 21r00r00            286 	ld	hl, #_joypad
+   00C6 7E                  287 	ld	a, (hl)
+   00C7 CB 4F               288 	bit	1, a
+   00C9 28 05               289 	jr	Z,00121$
+   00CB 01 03 00            290 	ld	bc, #0x0003
+   00CE 18 03               291 	jr	00122$
+   00D0                     292 00121$:
+   00D0 01 00 00            293 	ld	bc, #0x0000
+   00D3                     294 00122$:
+   00D3 21 25 98            295 	ld	hl, #(_bgmap + 0x0025)
+   00D6 71                  296 	ld	(hl), c
+                     00D7   297 	C$main.c$162$2_0$29	= .
+                            298 	.globl	C$main.c$162$2_0$29
+                            299 ;src\main.c:162: *(&bgmap + 32 + 6) = joypad & 0b00000100 ? 3 : 0;
+   00D7 21r00r00            300 	ld	hl, #_joypad
+   00DA 7E                  301 	ld	a, (hl)
+   00DB CB 57               302 	bit	2, a
+   00DD 28 05               303 	jr	Z,00123$
+   00DF 01 03 00            304 	ld	bc, #0x0003
+   00E2 18 03               305 	jr	00124$
+   00E4                     306 00123$:
+   00E4 01 00 00            307 	ld	bc, #0x0000
+   00E7                     308 00124$:
+   00E7 21 26 98            309 	ld	hl, #(_bgmap + 0x0026)
+   00EA 71                  310 	ld	(hl), c
+                     00EB   311 	C$main.c$163$2_0$29	= .
+                            312 	.globl	C$main.c$163$2_0$29
+                            313 ;src\main.c:163: *(&bgmap + 32 + 7) = joypad & 0b00001000 ? 3 : 0;
+   00EB 21r00r00            314 	ld	hl, #_joypad
+   00EE 7E                  315 	ld	a, (hl)
+   00EF CB 5F               316 	bit	3, a
+   00F1 28 05               317 	jr	Z,00125$
+   00F3 01 03 00            318 	ld	bc, #0x0003
+   00F6 18 03               319 	jr	00126$
+   00F8                     320 00125$:
+   00F8 01 00 00            321 	ld	bc, #0x0000
+   00FB                     322 00126$:
+   00FB 21 27 98            323 	ld	hl, #(_bgmap + 0x0027)
+   00FE 71                  324 	ld	(hl), c
+                     00FF   325 	C$main.c$165$2_0$29	= .
+                            326 	.globl	C$main.c$165$2_0$29
+                            327 ;src\main.c:165: *(&bgmap + 0) = joypad_dpad_state & 0b0001 ? 3 : 0;
+   00FF 21r01r00            328 	ld	hl, #_joypad_dpad_state
+   0102 7E                  329 	ld	a, (hl)
+   0103 0F                  330 	rrca
+   0104 30 05               331 	jr	NC,00127$
+   0106 01 03 00            332 	ld	bc, #0x0003
+   0109 18 03               333 	jr	00128$
+   010B                     334 00127$:
+   010B 01 00 00            335 	ld	bc, #0x0000
+   010E                     336 00128$:
+   010E 21 00 98            337 	ld	hl, #_bgmap
+   0111 71                  338 	ld	(hl), c
+                     0112   339 	C$main.c$166$2_0$29	= .
+                            340 	.globl	C$main.c$166$2_0$29
+                            341 ;src\main.c:166: *(&bgmap + 1) = joypad_dpad_state & 0b0010 ? 3 : 0;
+   0112 21r01r00            342 	ld	hl, #_joypad_dpad_state
+   0115 7E                  343 	ld	a, (hl)
+   0116 CB 4F               344 	bit	1, a
+   0118 28 05               345 	jr	Z,00129$
+   011A 01 03 00            346 	ld	bc, #0x0003
+   011D 18 03               347 	jr	00130$
+   011F                     348 00129$:
+   011F 01 00 00            349 	ld	bc, #0x0000
+   0122                     350 00130$:
+   0122 21 01 98            351 	ld	hl, #(_bgmap + 0x0001)
+   0125 71                  352 	ld	(hl), c
+                     0126   353 	C$main.c$167$2_0$29	= .
+                            354 	.globl	C$main.c$167$2_0$29
+                            355 ;src\main.c:167: *(&bgmap + 2) = joypad_dpad_state & 0b0100 ? 3 : 0;
+   0126 21r01r00            356 	ld	hl, #_joypad_dpad_state
+   0129 7E                  357 	ld	a, (hl)
+   012A CB 57               358 	bit	2, a
+   012C 28 05               359 	jr	Z,00131$
+   012E 01 03 00            360 	ld	bc, #0x0003
+   0131 18 03               361 	jr	00132$
+   0133                     362 00131$:
+   0133 01 00 00            363 	ld	bc, #0x0000
+   0136                     364 00132$:
+   0136 21 02 98            365 	ld	hl, #(_bgmap + 0x0002)
+   0139 71                  366 	ld	(hl), c
+                     013A   367 	C$main.c$168$2_0$29	= .
+                            368 	.globl	C$main.c$168$2_0$29
+                            369 ;src\main.c:168: *(&bgmap + 3) = joypad_dpad_state & 0b1000 ? 3 : 0;
+   013A 21r01r00            370 	ld	hl, #_joypad_dpad_state
+   013D 7E                  371 	ld	a, (hl)
+   013E CB 5F               372 	bit	3, a
+   0140 28 05               373 	jr	Z,00133$
+   0142 01 03 00            374 	ld	bc, #0x0003
+   0145 18 03               375 	jr	00134$
+   0147                     376 00133$:
+   0147 01 00 00            377 	ld	bc, #0x0000
+   014A                     378 00134$:
+   014A 21 03 98            379 	ld	hl, #(_bgmap + 0x0003)
+   014D 71                  380 	ld	(hl), c
+                     014E   381 	C$main.c$170$2_0$29	= .
+                            382 	.globl	C$main.c$170$2_0$29
+                            383 ;src\main.c:170: *(&bgmap + 4)  = joypad_btn_state & 0b0001 ? 3 : 0;
+   014E 21r02r00            384 	ld	hl, #_joypad_btn_state
+   0151 7E                  385 	ld	a, (hl)
+   0152 0F                  386 	rrca
+   0153 30 05               387 	jr	NC,00135$
+   0155 01 03 00            388 	ld	bc, #0x0003
+   0158 18 03               389 	jr	00136$
+   015A                     390 00135$:
+   015A 01 00 00            391 	ld	bc, #0x0000
+   015D                     392 00136$:
+   015D 21 04 98            393 	ld	hl, #(_bgmap + 0x0004)
+   0160 71                  394 	ld	(hl), c
+                     0161   395 	C$main.c$171$2_0$29	= .
+                            396 	.globl	C$main.c$171$2_0$29
+                            397 ;src\main.c:171: *(&bgmap + 5) = joypad_btn_state & 0b0010 ? 3 : 0;
+   0161 21r02r00            398 	ld	hl, #_joypad_btn_state
+   0164 7E                  399 	ld	a, (hl)
+   0165 CB 4F               400 	bit	1, a
+   0167 28 05               401 	jr	Z,00137$
+   0169 01 03 00            402 	ld	bc, #0x0003
+   016C 18 03               403 	jr	00138$
+   016E                     404 00137$:
+   016E 01 00 00            405 	ld	bc, #0x0000
+   0171                     406 00138$:
+   0171 21 05 98            407 	ld	hl, #(_bgmap + 0x0005)
+   0174 71                  408 	ld	(hl), c
+                     0175   409 	C$main.c$172$2_0$29	= .
+                            410 	.globl	C$main.c$172$2_0$29
+                            411 ;src\main.c:172: *(&bgmap + 6) = joypad_btn_state & 0b0100 ? 3 : 0;
+   0175 21r02r00            412 	ld	hl, #_joypad_btn_state
+   0178 7E                  413 	ld	a, (hl)
+   0179 CB 57               414 	bit	2, a
+   017B 28 05               415 	jr	Z,00139$
+   017D 01 03 00            416 	ld	bc, #0x0003
+   0180 18 03               417 	jr	00140$
+   0182                     418 00139$:
+   0182 01 00 00            419 	ld	bc, #0x0000
+   0185                     420 00140$:
+   0185 21 06 98            421 	ld	hl, #(_bgmap + 0x0006)
+   0188 71                  422 	ld	(hl), c
+                     0189   423 	C$main.c$173$2_0$29	= .
+                            424 	.globl	C$main.c$173$2_0$29
+                            425 ;src\main.c:173: *(&bgmap + 7) = joypad_btn_state & 0b1000 ? 3 : 0;
+   0189 21r02r00            426 	ld	hl, #_joypad_btn_state
+   018C 7E                  427 	ld	a, (hl)
+   018D CB 5F               428 	bit	3, a
+   018F 28 05               429 	jr	Z,00141$
+   0191 01 03 00            430 	ld	bc, #0x0003
+   0194 18 03               431 	jr	00142$
+   0196                     432 00141$:
+   0196 01 00 00            433 	ld	bc, #0x0000
+   0199                     434 00142$:
+   0199 21 07 98            435 	ld	hl, #(_bgmap + 0x0007)
+   019C 71                  436 	ld	(hl), c
+   019D C3r4Cr00            437 	jp	00105$
+                     01A0   438 	C$main.c$175$1_0$26	= .
+                            439 	.globl	C$main.c$175$1_0$26
+                            440 ;src\main.c:175: }
+                     01A0   441 	C$main.c$175$1_0$26	= .
+                            442 	.globl	C$main.c$175$1_0$26
+                     01A0   443 	XG$main$0$0	= .
+                            444 	.globl	XG$main$0$0
+   01A0 C9                  445 	ret
+                     01A1   446 G$IEF_HILO$0_0$0 == .
+   01A1                     447 _IEF_HILO:
+   01A1 10                  448 	.db #0x10	; 16
+                     01A2   449 G$IEF_SERIAL$0_0$0 == .
+   01A2                     450 _IEF_SERIAL:
+   01A2 08                  451 	.db #0x08	; 8
+                     01A3   452 G$IEF_TIMER$0_0$0 == .
+   01A3                     453 _IEF_TIMER:
+   01A3 04                  454 	.db #0x04	; 4
+                     01A4   455 G$IEF_LCDC$0_0$0 == .
+   01A4                     456 _IEF_LCDC:
+   01A4 02                  457 	.db #0x02	; 2
+                     01A5   458 G$IEF_VBLANK$0_0$0 == .
+   01A5                     459 _IEF_VBLANK:
+   01A5 01                  460 	.db #0x01	; 1
+                     01A6   461 G$font_tiles$0_0$0 == .
+   01A6                     462 _font_tiles:
+   01A6 00                  463 	.db #0x00	; 0
+   01A7 00                  464 	.db #0x00	; 0
+   01A8 00                  465 	.db #0x00	; 0
+   01A9 00                  466 	.db #0x00	; 0
+   01AA 00                  467 	.db #0x00	; 0
+   01AB 00                  468 	.db #0x00	; 0
+   01AC 00                  469 	.db #0x00	; 0
+   01AD 00                  470 	.db #0x00	; 0
+   01AE 00                  471 	.db #0x00	; 0
+   01AF 00                  472 	.db #0x00	; 0
+   01B0 00                  473 	.db #0x00	; 0
+   01B1 00                  474 	.db #0x00	; 0
+   01B2 00                  475 	.db #0x00	; 0
+   01B3 00                  476 	.db #0x00	; 0
+   01B4 00                  477 	.db #0x00	; 0
+   01B5 00                  478 	.db #0x00	; 0
+   01B6 01                  479 	.db #0x01	; 1
+   01B7 01                  480 	.db #0x01	; 1
+   01B8 02                  481 	.db #0x02	; 2
+   01B9 02                  482 	.db #0x02	; 2
+   01BA 04                  483 	.db #0x04	; 4
+   01BB 04                  484 	.db #0x04	; 4
+   01BC 08                  485 	.db #0x08	; 8
+   01BD 08                  486 	.db #0x08	; 8
+   01BE 10                  487 	.db #0x10	; 16
+   01BF 10                  488 	.db #0x10	; 16
+   01C0 20                  489 	.db #0x20	; 32
+   01C1 20                  490 	.db #0x20	; 32
+   01C2 40                  491 	.db #0x40	; 64
+   01C3 40                  492 	.db #0x40	; 64
+   01C4 80                  493 	.db #0x80	; 128
+   01C5 80                  494 	.db #0x80	; 128
+   01C6 80                  495 	.db #0x80	; 128
+   01C7 80                  496 	.db #0x80	; 128
+   01C8 40                  497 	.db #0x40	; 64
+   01C9 40                  498 	.db #0x40	; 64
+   01CA 20                  499 	.db #0x20	; 32
+   01CB 20                  500 	.db #0x20	; 32
+   01CC 10                  501 	.db #0x10	; 16
+   01CD 10                  502 	.db #0x10	; 16
+   01CE 08                  503 	.db #0x08	; 8
+   01CF 08                  504 	.db #0x08	; 8
+   01D0 04                  505 	.db #0x04	; 4
+   01D1 04                  506 	.db #0x04	; 4
+   01D2 02                  507 	.db #0x02	; 2
+   01D3 02                  508 	.db #0x02	; 2
+   01D4 01                  509 	.db #0x01	; 1
+   01D5 01                  510 	.db #0x01	; 1
+   01D6 81                  511 	.db #0x81	; 129
+   01D7 81                  512 	.db #0x81	; 129
+   01D8 42                  513 	.db #0x42	; 66	'B'
+   01D9 42                  514 	.db #0x42	; 66	'B'
+   01DA 24                  515 	.db #0x24	; 36
+   01DB 24                  516 	.db #0x24	; 36
+   01DC 18                  517 	.db #0x18	; 24
+   01DD 18                  518 	.db #0x18	; 24
+   01DE 18                  519 	.db #0x18	; 24
+   01DF 18                  520 	.db #0x18	; 24
+   01E0 24                  521 	.db #0x24	; 36
+   01E1 24                  522 	.db #0x24	; 36
+   01E2 42                  523 	.db #0x42	; 66	'B'
+   01E3 42                  524 	.db #0x42	; 66	'B'
+   01E4 81                  525 	.db #0x81	; 129
+   01E5 81                  526 	.db #0x81	; 129
+                     01E6   527 	G$timer_isr$0$0	= .
+                            528 	.globl	G$timer_isr$0$0
+                     01E6   529 	C$main.c$177$1_0$31	= .
+                            530 	.globl	C$main.c$177$1_0$31
+                            531 ;src\main.c:177: void timer_isr(void) __interrupt
+                            532 ;	---------------------------------
+                            533 ; Function timer_isr
+                            534 ; ---------------------------------
+   01E6                     535 _timer_isr::
+   01E6 FB                  536 	ei
+   01E7 F5                  537 	push	af
+   01E8 C5                  538 	push bc
+   01E9 D5                  539 	push de
+   01EA E5                  540 	push hl
+                     01EB   541 	C$main.c$179$1_0$31	= .
+                            542 	.globl	C$main.c$179$1_0$31
+                            543 ;src\main.c:179: __asm__("ld b, b;bgb breakpoint");
+   01EB 40                  544 	ld	b, b;bgb breakpoint
+                     01EC   545 	C$main.c$180$1_0$31	= .
+                            546 	.globl	C$main.c$180$1_0$31
+                            547 ;src\main.c:180: }
+   01EC E1                  548 	pop	hl
+   01ED D1                  549 	pop de
+   01EE C1                  550 	pop bc
+   01EF F1                  551 	pop af
+                     01F0   552 	C$main.c$180$1_0$31	= .
+                            553 	.globl	C$main.c$180$1_0$31
+                     01F0   554 	XG$timer_isr$0$0	= .
+                            555 	.globl	XG$timer_isr$0$0
+   01F0 C9                  556 	ret
+                     01F1   557 	G$vblank_isr$0$0	= .
+                            558 	.globl	G$vblank_isr$0$0
+                     01F1   559 	C$main.c$182$1_0$33	= .
+                            560 	.globl	C$main.c$182$1_0$33
+                            561 ;src\main.c:182: void vblank_isr(void) __critical __interrupt
+                            562 ;	---------------------------------
+                            563 ; Function vblank_isr
+                            564 ; ---------------------------------
+   01F1                     565 _vblank_isr::
+   01F1 F5                  566 	push	af
+   01F2 C5                  567 	push bc
+   01F3 D5                  568 	push de
+   01F4 E5                  569 	push hl
+                     01F5   570 	C$main.c$184$1_0$33	= .
+                            571 	.globl	C$main.c$184$1_0$33
+                            572 ;src\main.c:184: poll_joypad();
+   01F5 CDr1Br02            573 	call	_poll_joypad
+                     01F8   574 	C$main.c$186$1_0$33	= .
+                            575 	.globl	C$main.c$186$1_0$33
+                            576 ;src\main.c:186: }
+   01F8 E1                  577 	pop	hl
+   01F9 D1                  578 	pop de
+   01FA C1                  579 	pop bc
+   01FB F1                  580 	pop af
+                     01FC   581 	C$main.c$186$1_0$33	= .
+                            582 	.globl	C$main.c$186$1_0$33
+                     01FC   583 	XG$vblank_isr$0$0	= .
+                            584 	.globl	XG$vblank_isr$0$0
+   01FC D9                  585 	reti
+                     01FD   586 	G$lcd_isr$0$0	= .
+                            587 	.globl	G$lcd_isr$0$0
+                     01FD   588 	C$main.c$188$1_0$35	= .
+                            589 	.globl	C$main.c$188$1_0$35
+                            590 ;src\main.c:188: void lcd_isr(void) __critical __interrupt
+                            591 ;	---------------------------------
+                            592 ; Function lcd_isr
+                            593 ; ---------------------------------
+   01FD                     594 _lcd_isr::
+   01FD F5                  595 	push	af
+   01FE C5                  596 	push bc
+   01FF D5                  597 	push de
+   0200 E5                  598 	push hl
+                     0201   599 	C$main.c$190$1_0$35	= .
+                            600 	.globl	C$main.c$190$1_0$35
+                            601 ;src\main.c:190: __asm__("ld b, b;bgb breakpoint");
+   0201 40                  602 	ld	b, b;bgb breakpoint
+                     0202   603 	C$main.c$191$1_0$35	= .
+                            604 	.globl	C$main.c$191$1_0$35
+                            605 ;src\main.c:191: }
+   0202 E1                  606 	pop	hl
+   0203 D1                  607 	pop de
+   0204 C1                  608 	pop bc
+   0205 F1                  609 	pop af
+                     0206   610 	C$main.c$191$1_0$35	= .
+                            611 	.globl	C$main.c$191$1_0$35
+                     0206   612 	XG$lcd_isr$0$0	= .
+                            613 	.globl	XG$lcd_isr$0$0
+   0206 D9                  614 	reti
+                     0207   615 	G$serial_isr$0$0	= .
+                            616 	.globl	G$serial_isr$0$0
+                     0207   617 	C$main.c$193$1_0$37	= .
+                            618 	.globl	C$main.c$193$1_0$37
+                            619 ;src\main.c:193: void serial_isr(void) __critical __interrupt
+                            620 ;	---------------------------------
+                            621 ; Function serial_isr
+                            622 ; ---------------------------------
+   0207                     623 _serial_isr::
+   0207 F5                  624 	push	af
+   0208 C5                  625 	push bc
+   0209 D5                  626 	push de
+   020A E5                  627 	push hl
+                     020B   628 	C$main.c$195$1_0$37	= .
+                            629 	.globl	C$main.c$195$1_0$37
+                            630 ;src\main.c:195: __asm__("ld b, b;bgb breakpoint");
+   020B 40                  631 	ld	b, b;bgb breakpoint
+                     020C   632 	C$main.c$196$1_0$37	= .
+                            633 	.globl	C$main.c$196$1_0$37
+                            634 ;src\main.c:196: }
+   020C E1                  635 	pop	hl
+   020D D1                  636 	pop de
+   020E C1                  637 	pop bc
+   020F F1                  638 	pop af
+                     0210   639 	C$main.c$196$1_0$37	= .
+                            640 	.globl	C$main.c$196$1_0$37
+                     0210   641 	XG$serial_isr$0$0	= .
+                            642 	.globl	XG$serial_isr$0$0
+   0210 D9                  643 	reti
+                     0211   644 	G$joypad_isr$0$0	= .
+                            645 	.globl	G$joypad_isr$0$0
+                     0211   646 	C$main.c$198$1_0$39	= .
+                            647 	.globl	C$main.c$198$1_0$39
+                            648 ;src\main.c:198: void joypad_isr(void) __critical __interrupt
+                            649 ;	---------------------------------
+                            650 ; Function joypad_isr
+                            651 ; ---------------------------------
+   0211                     652 _joypad_isr::
+   0211 F5                  653 	push	af
+   0212 C5                  654 	push bc
+   0213 D5                  655 	push de
+   0214 E5                  656 	push hl
+                     0215   657 	C$main.c$200$1_0$39	= .
+                            658 	.globl	C$main.c$200$1_0$39
+                            659 ;src\main.c:200: __asm__("ld b, b;bgb breakpoint");
+   0215 40                  660 	ld	b, b;bgb breakpoint
+                     0216   661 	C$main.c$201$1_0$39	= .
+                            662 	.globl	C$main.c$201$1_0$39
+                            663 ;src\main.c:201: }
+   0216 E1                  664 	pop	hl
+   0217 D1                  665 	pop de
+   0218 C1                  666 	pop bc
+   0219 F1                  667 	pop af
+                     021A   668 	C$main.c$201$1_0$39	= .
+                            669 	.globl	C$main.c$201$1_0$39
+                     021A   670 	XG$joypad_isr$0$0	= .
+                            671 	.globl	XG$joypad_isr$0$0
+   021A D9                  672 	reti
+                     021B   673 	G$poll_joypad$0$0	= .
+                            674 	.globl	G$poll_joypad$0$0
+                     021B   675 	C$main.c$204$1_0$41	= .
+                            676 	.globl	C$main.c$204$1_0$41
+                            677 ;src\main.c:204: void poll_joypad(void) 
+                            678 ;	---------------------------------
+                            679 ; Function poll_joypad
+                            680 ; ---------------------------------
+   021B                     681 _poll_joypad::
+                     021B   682 	C$main.c$236$1_0$41	= .
+                            683 	.globl	C$main.c$236$1_0$41
+                            684 ;src\main.c:236: );
+   FF00 3E 20               685 	rP1	= #0xFF00ld a, #0x20
+   021D EA 00 FF            686 	ld	(rP1), a
+   0220 FA 00 FF            687 	ld	a, (rP1)
+   0223 FA 00 FF            688 	ld	a, (rP1)
+   0226 EAr01r00            689 	ld	(_joypad_dpad_state), a
+   0229 FA 10 00            690 	ld	a, (#0x10)
+   022C EA 00 FF            691 	ld	(rP1), a
+   022F FA 00 FF            692 	ld	a, (rP1)
+   0232 FA 00 FF            693 	ld	a, (rP1)
+   0235 FA 00 FF            694 	ld	a, (rP1)
+   0238 FA 00 FF            695 	ld	a, (rP1)
+   023B FA 00 FF            696 	ld	a, (rP1)
+   023E FA 00 FF            697 	ld	a, (rP1)
+   0241 EAr02r00            698 	ld	(_joypad_btn_state), a
+   0244 FA 30 00            699 	ld	a, (#0x30)
+   0247 EA 00 FF            700 	ld	(rP1), a
+                     024A   701 	C$main.c$239$1_0$41	= .
+                            702 	.globl	C$main.c$239$1_0$41
+                            703 ;src\main.c:239: joypad_btn_state = (~joypad_btn_state) & 0x0F;
+   024A 21r02r00            704 	ld	hl, #_joypad_btn_state
+   024D 7E                  705 	ld	a, (hl)
+   024E 2F                  706 	cpl
+   024F E6 0F               707 	and	a, #0x0f
+   0251 77                  708 	ld	(hl), a
+                     0252   709 	C$main.c$240$1_0$41	= .
+                            710 	.globl	C$main.c$240$1_0$41
+                            711 ;src\main.c:240: joypad_dpad_state = (~joypad_dpad_state) & 0x0F;
+   0252 21r01r00            712 	ld	hl, #_joypad_dpad_state
+   0255 7E                  713 	ld	a, (hl)
+   0256 2F                  714 	cpl
+   0257 E6 0F               715 	and	a, #0x0f
+                     0259   716 	C$main.c$242$1_0$41	= .
+                            717 	.globl	C$main.c$242$1_0$41
+                            718 ;src\main.c:242: joypad = (joypad_dpad_state << 4) ^ joypad_btn_state;
+   0259 77                  719 	ld	(hl),a
+   025A CB 37               720 	swap	a
+   025C E6 F0               721 	and	a, #0xf0
+   025E 21r02r00            722 	ld	hl, #_joypad_btn_state
+   0261 AE                  723 	xor	a, (hl)
+   0262 21r00r00            724 	ld	hl, #_joypad
+   0265 77                  725 	ld	(hl), a
+                     0266   726 	C$main.c$244$1_0$41	= .
+                            727 	.globl	C$main.c$244$1_0$41
+                            728 ;src\main.c:244: }
+                     0266   729 	C$main.c$244$1_0$41	= .
+                            730 	.globl	C$main.c$244$1_0$41
+                     0266   731 	XG$poll_joypad$0$0	= .
+                            732 	.globl	XG$poll_joypad$0$0
+   0266 C9                  733 	ret
+                            734 	.area _CODE
+                            735 	.area _CABS (ABS)
