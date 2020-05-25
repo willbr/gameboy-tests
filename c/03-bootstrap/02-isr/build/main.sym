@@ -1,0 +1,225 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  2710 L
+    .__.ABS.                                                    =  0000 G
+    .__.CPU.                                                    =  0000 L
+    .__.H$L.                                                    =  0000 L
+  0 A$maind\main$101                                               0008 GR
+  0 A$maind\main$102                                               000A GR
+  0 A$maind\main$106                                               000C GR
+  0 A$maind\main$107                                               000F GR
+  0 A$maind\main$108                                               0010 GR
+  0 A$maind\main$109                                               0013 GR
+  0 A$maind\main$110                                               0014 GR
+  0 A$maind\main$111                                               0017 GR
+  0 A$maind\main$112                                               0018 GR
+  0 A$maind\main$113                                               001B GR
+  0 A$maind\main$117                                               001D GR
+  0 A$maind\main$118                                               0020 GR
+  0 A$maind\main$119                                               0021 GR
+  0 A$maind\main$120                                               0024 GR
+  0 A$maind\main$121                                               0025 GR
+  0 A$maind\main$122                                               0028 GR
+  0 A$maind\main$123                                               0029 GR
+  0 A$maind\main$124                                               002C GR
+  0 A$maind\main$128                                               002E GR
+  0 A$maind\main$129                                               0030 GR
+  0 A$maind\main$133                                               0032 GR
+  0 A$maind\main$134                                               0034 GR
+  0 A$maind\main$138                                               0036 GR
+  0 A$maind\main$139                                               0038 GR
+  0 A$maind\main$143                                               003A GR
+  0 A$maind\main$144                                               003C GR
+  0 A$maind\main$148                                               003E GR
+  0 A$maind\main$149                                               0040 GR
+  0 A$maind\main$153                                               0042 GR
+  0 A$maind\main$157                                               0043 GR
+  0 A$maind\main$158                                               0046 GR
+  0 A$maind\main$159                                               0047 GR
+  0 A$maind\main$160                                               0049 GR
+  0 A$maind\main$161                                               004A GR
+  0 A$maind\main$169                                               004C GR
+  0 A$maind\main$170                                               004D GR
+  0 A$maind\main$174                                               004E GR
+  0 A$maind\main$175                                               0050 GR
+  0 A$maind\main$176                                               0051 GR
+  0 A$maind\main$177                                               0053 GR
+  0 A$maind\main$185                                               0055 GR
+  0 A$maind\main$260                                               008B GR
+  0 A$maind\main$261                                               008C GR
+  0 A$maind\main$262                                               008D GR
+  0 A$maind\main$263                                               008E GR
+  0 A$maind\main$264                                               008F GR
+  0 A$maind\main$268                                               0090 GR
+  0 A$maind\main$272                                               0091 GR
+  0 A$maind\main$273                                               0092 GR
+  0 A$maind\main$274                                               0093 GR
+  0 A$maind\main$275                                               0094 GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 2.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 A$maind\main$280                                               0095 GR
+  0 A$maind\main$290                                               0096 GR
+  0 A$maind\main$291                                               0097 GR
+  0 A$maind\main$292                                               0098 GR
+  0 A$maind\main$293                                               0099 GR
+  0 A$maind\main$297                                               009A GR
+  0 A$maind\main$301                                               009B GR
+  0 A$maind\main$302                                               009C GR
+  0 A$maind\main$303                                               009D GR
+  0 A$maind\main$304                                               009E GR
+  0 A$maind\main$309                                               009F GR
+  0 A$maind\main$319                                               00A0 GR
+  0 A$maind\main$320                                               00A1 GR
+  0 A$maind\main$321                                               00A2 GR
+  0 A$maind\main$322                                               00A3 GR
+  0 A$maind\main$326                                               00A4 GR
+  0 A$maind\main$330                                               00A5 GR
+  0 A$maind\main$331                                               00A6 GR
+  0 A$maind\main$332                                               00A7 GR
+  0 A$maind\main$333                                               00A8 GR
+  0 A$maind\main$338                                               00A9 GR
+  0 A$maind\main$348                                               00AA GR
+  0 A$maind\main$349                                               00AB GR
+  0 A$maind\main$350                                               00AC GR
+  0 A$maind\main$351                                               00AD GR
+  0 A$maind\main$355                                               00AE GR
+  0 A$maind\main$359                                               00AF GR
+  0 A$maind\main$360                                               00B0 GR
+  0 A$maind\main$361                                               00B1 GR
+  0 A$maind\main$362                                               00B2 GR
+  0 A$maind\main$367                                               00B3 GR
+  0 A$maind\main$377                                               00B4 GR
+  0 A$maind\main$378                                               00B5 GR
+  0 A$maind\main$379                                               00B6 GR
+  0 A$maind\main$380                                               00B7 GR
+  0 A$maind\main$384                                               00B8 GR
+  0 A$maind\main$388                                               00B9 GR
+  0 A$maind\main$389                                               00BA GR
+  0 A$maind\main$390                                               00BB GR
+  0 A$maind\main$391                                               00BC GR
+  0 A$maind\main$396                                               00BD GR
+  0 A$maind\main$92                                                0000 GR
+  0 A$maind\main$94                                                0001 GR
+  0 A$maind\main$95                                                0003 GR
+  0 A$maind\main$96                                                0005 GR
+  0 A$maind\main$97                                                0007 GR
+  0 C$main.c$102$2_0$26                                         =  002E GR
+  0 C$main.c$104$2_0$26                                         =  0032 GR
+  0 C$main.c$105$2_0$26                                         =  0036 GR
+  0 C$main.c$107$2_0$26                                         =  003A GR
+  0 C$main.c$109$2_0$26                                         =  003E GR
+  0 C$main.c$112$1_0$25                                         =  0042 GR
+  0 C$main.c$113$1_0$25                                         =  0043 GR
+  0 C$main.c$115$1_0$25                                         =  004C GR
+  0 C$main.c$117$2_0$28                                         =  004C GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 3.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 C$main.c$118$2_0$28                                         =  004E GR
+  0 C$main.c$120$1_0$25                                         =  0055 GR
+  0 C$main.c$122$1_0$30                                         =  008B GR
+  0 C$main.c$124$1_0$30                                         =  0090 GR
+  0 C$main.c$125$1_0$30                                         =  0095 GR
+  0 C$main.c$127$1_0$32                                         =  0096 GR
+  0 C$main.c$129$1_0$32                                         =  009A GR
+  0 C$main.c$131$1_0$32                                         =  009F GR
+  0 C$main.c$133$1_0$34                                         =  00A0 GR
+  0 C$main.c$135$1_0$34                                         =  00A4 GR
+  0 C$main.c$136$1_0$34                                         =  00A9 GR
+  0 C$main.c$138$1_0$36                                         =  00AA GR
+  0 C$main.c$140$1_0$36                                         =  00AE GR
+  0 C$main.c$141$1_0$36                                         =  00B3 GR
+  0 C$main.c$143$1_0$38                                         =  00B4 GR
+  0 C$main.c$145$1_0$38                                         =  00B8 GR
+  0 C$main.c$146$1_0$38                                         =  00BD GR
+  0 C$main.c$90$0_0$25                                          =  0000 GR
+  0 C$main.c$92$2_0$26                                          =  0000 GR
+  0 C$main.c$94$2_0$26                                          =  0008 GR
+  0 C$main.c$96$2_0$26                                          =  000C GR
+  0 C$main.c$99$2_0$26                                          =  001D GR
+    G$BGP$0_0$0                                                 =  0047 G
+  0 G$IEF_HILO$0_0$0                                            =  0056 GR
+  0 G$IEF_LCDC$0_0$0                                            =  0059 GR
+  0 G$IEF_SERIAL$0_0$0                                          =  0057 GR
+  0 G$IEF_TIMER$0_0$0                                           =  0058 GR
+  0 G$IEF_VBLANK$0_0$0                                          =  005A GR
+    G$LCDC$0_0$0                                                =  0040 G
+    G$LY$0_0$0                                                  =  0044 G
+    G$LYC$0_0$0                                                 =  0045 G
+    G$NR52$0_0$0                                                =  0026 G
+    G$SCX$0_0$0                                                 =  0043 G
+    G$SCY$0_0$0                                                 =  0042 G
+    G$STAT$0_0$0                                                =  0041 G
+    G$bgmap$0_0$0                                               =  9800 G
+  0 G$font_tiles$0_0$0                                          =  005B GR
+    G$interrupt_enable$0_0$0                                    =  00FF G
+    G$interrupt_flag$0_0$0                                      =  000F G
+  0 G$joypad_isr$0$0                                            =  00B4 GR
+  0 G$lcd_isr$0$0                                               =  00A0 GR
+  0 G$main$0$0                                                  =  0000 GR
+    G$p1_joy_pad$0_0$0                                          =  0000 G
+  0 G$serial_isr$0$0                                            =  00AA GR
+    G$tiles$0_0$0                                               =  9000 G
+  0 G$timer_isr$0$0                                             =  008B GR
+  0 G$vblank_isr$0$0                                            =  0096 GR
+  0 XG$joypad_isr$0$0                                           =  00BD GR
+  0 XG$lcd_isr$0$0                                              =  00A9 GR
+  0 XG$main$0$0                                                 =  0055 GR
+  0 XG$serial_isr$0$0                                           =  00B3 GR
+  0 XG$timer_isr$0$0                                            =  0095 GR
+  0 XG$vblank_isr$0$0                                           =  009F GR
+    _BGP                                                        =  0047 
+  0 _IEF_HILO                                                      0056 GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 4.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 _IEF_LCDC                                                      0059 GR
+  0 _IEF_SERIAL                                                    0057 GR
+  0 _IEF_TIMER                                                     0058 GR
+  0 _IEF_VBLANK                                                    005A GR
+    _LCDC                                                       =  0040 
+    _LY                                                         =  0044 
+    _LYC                                                        =  0045 
+    _NR52                                                       =  0026 
+    _SCX                                                        =  0043 
+    _SCY                                                        =  0042 
+    _STAT                                                       =  0041 
+    ___memcpy                                                      **** GX
+    _bgmap                                                      =  9800 G
+  0 _font_tiles                                                    005B GR
+    _interrupt_enable                                           =  00FF 
+    _interrupt_flag                                             =  000F 
+  0 _joypad_isr                                                    00B4 GR
+  0 _lcd_isr                                                       00A0 GR
+  0 _main                                                          0000 GR
+    _memset                                                        **** GX
+    _p1_joy_pad                                                 =  0000 
+  0 _serial_isr                                                    00AA GR
+    _tiles                                                      =  9000 G
+  0 _timer_isr                                                     008B GR
+  0 _vblank_isr                                                    0096 GR
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 5.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE                                      size   BE   flags    0
+   1 _DATA                                      size    0   flags    0
+   2 _DABS                                      size    0   flags    8
+   3 _HOME                                      size    0   flags    0
+   4 _GSINIT                                    size    0   flags    0
+   5 _GSFINAL                                   size    0   flags    0
+   6 _CABS                                      size    0   flags    8
+

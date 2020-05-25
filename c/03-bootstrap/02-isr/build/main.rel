@@ -1,0 +1,260 @@
+;!FILE build\main.asm
+XL2
+H 7 areas B0 global symbols
+M main
+O -mgbz80
+S _tiles Def9000
+S G$tiles$0_0$0 Def9000
+S G$LY$0_0$0 Def0044
+S G$interrupt_flag$0_0$0 Def000F
+S G$p1_joy_pad$0_0$0 Def0000
+S G$LYC$0_0$0 Def0045
+S G$SCX$0_0$0 Def0043
+S G$SCY$0_0$0 Def0042
+S G$interrupt_enable$0_0$0 Def00FF
+S G$STAT$0_0$0 Def0041
+S .__.ABS. Def0000
+S _bgmap Def9800
+S ___memcpy Ref0000
+S G$bgmap$0_0$0 Def9800
+S G$NR52$0_0$0 Def0026
+S _memset Ref0000
+S G$LCDC$0_0$0 Def0040
+S G$BGP$0_0$0 Def0047
+A _CODE size BE flags 0 addr 0
+S A$maind\main$94 Def0001
+S G$serial_isr$0$0 Def00AA
+S A$maind\main$95 Def0003
+S C$main.c$122$1_0$30 Def008B
+S G$IEF_HILO$0_0$0 Def0056
+S A$maind\main$96 Def0005
+S A$maind\main$97 Def0007
+S C$main.c$131$1_0$32 Def009F
+S C$main.c$124$1_0$30 Def0090
+S C$main.c$120$1_0$25 Def0055
+S C$main.c$125$1_0$30 Def0095
+S C$main.c$112$1_0$25 Def0042
+S _main Def0000
+S C$main.c$113$1_0$25 Def0043
+S C$main.c$102$2_0$26 Def002E
+S G$joypad_isr$0$0 Def00B4
+S C$main.c$140$1_0$36 Def00AE
+S C$main.c$133$1_0$34 Def00A0
+S C$main.c$115$1_0$25 Def004C
+S C$main.c$104$2_0$26 Def0032
+S C$main.c$141$1_0$36 Def00B3
+S C$main.c$127$1_0$32 Def0096
+S C$main.c$105$2_0$26 Def0036
+S C$main.c$135$1_0$34 Def00A4
+S C$main.c$136$1_0$34 Def00A9
+S C$main.c$129$1_0$32 Def009A
+S C$main.c$107$2_0$26 Def003A
+S _vblank_isr Def0096
+S XG$lcd_isr$0$0 Def00A9
+S C$main.c$143$1_0$38 Def00B4
+S C$main.c$109$2_0$26 Def003E
+S _serial_isr Def00AA
+S C$main.c$117$2_0$28 Def004C
+S C$main.c$145$1_0$38 Def00B8
+S C$main.c$138$1_0$36 Def00AA
+S C$main.c$118$2_0$28 Def004E
+S C$main.c$146$1_0$38 Def00BD
+S XG$main$0$0 Def0055
+S _IEF_VBLANK Def005A
+S _IEF_SERIAL Def0057
+S G$IEF_VBLANK$0_0$0 Def005A
+S _IEF_TIMER Def0058
+S _joypad_isr Def00B4
+S G$IEF_SERIAL$0_0$0 Def0057
+S XG$vblank_isr$0$0 Def009F
+S G$IEF_TIMER$0_0$0 Def0058
+S _font_tiles Def005B
+S XG$serial_isr$0$0 Def00B3
+S C$main.c$90$0_0$25 Def0000
+S G$font_tiles$0_0$0 Def005B
+S C$main.c$92$2_0$26 Def0000
+S XG$joypad_isr$0$0 Def00BD
+S C$main.c$94$2_0$26 Def0008
+S G$timer_isr$0$0 Def008B
+S C$main.c$96$2_0$26 Def000C
+S C$main.c$99$2_0$26 Def001D
+S A$maind\main$110 Def0014
+S A$maind\main$101 Def0008
+S A$maind\main$120 Def0024
+S A$maind\main$111 Def0017
+S A$maind\main$102 Def000A
+S A$maind\main$301 Def009B
+S A$maind\main$121 Def0025
+S A$maind\main$112 Def0018
+S A$maind\main$320 Def00A1
+S A$maind\main$302 Def009C
+S A$maind\main$122 Def0028
+S A$maind\main$113 Def001B
+S _IEF_LCDC Def0059
+S A$maind\main$330 Def00A5
+S A$maind\main$321 Def00A2
+S A$maind\main$303 Def009D
+S A$maind\main$123 Def0029
+S A$maind\main$331 Def00A6
+S A$maind\main$322 Def00A3
+S A$maind\main$304 Def009E
+S A$maind\main$160 Def0049
+S A$maind\main$133 Def0032
+S A$maind\main$124 Def002C
+S A$maind\main$106 Def000C
+S A$maind\main$350 Def00AC
+S A$maind\main$332 Def00A7
+S A$maind\main$260 Def008B
+S A$maind\main$170 Def004D
+S A$maind\main$161 Def004A
+S A$maind\main$143 Def003A
+S A$maind\main$134 Def0034
+S A$maind\main$107 Def000F
+S G$IEF_LCDC$0_0$0 Def0059
+S A$maind\main$360 Def00B0
+S A$maind\main$351 Def00AD
+S A$maind\main$333 Def00A8
+S A$maind\main$261 Def008C
+S A$maind\main$153 Def0042
+S A$maind\main$144 Def003C
+S A$maind\main$117 Def001D
+S A$maind\main$108 Def0010
+S A$maind\main$361 Def00B1
+S A$maind\main$280 Def0095
+S A$maind\main$262 Def008D
+S A$maind\main$118 Def0020
+S A$maind\main$109 Def0013
+S _timer_isr Def008B
+S A$maind\main$380 Def00B7
+S A$maind\main$362 Def00B2
+S A$maind\main$326 Def00A4
+S A$maind\main$290 Def0096
+S A$maind\main$272 Def0091
+S A$maind\main$263 Def008E
+S A$maind\main$128 Def002E
+S A$maind\main$119 Def0021
+S A$maind\main$390 Def00BB
+S A$maind\main$309 Def009F
+S A$maind\main$291 Def0097
+S A$maind\main$273 Def0092
+S A$maind\main$264 Def008F
+S A$maind\main$174 Def004E
+S A$maind\main$138 Def0036
+S A$maind\main$129 Def0030
+S A$maind\main$391 Def00BC
+S A$maind\main$355 Def00AE
+S A$maind\main$319 Def00A0
+S A$maind\main$292 Def0098
+S A$maind\main$274 Def0093
+S A$maind\main$175 Def0050
+S A$maind\main$157 Def0043
+S A$maind\main$148 Def003E
+S A$maind\main$139 Def0038
+S A$maind\main$338 Def00A9
+S A$maind\main$293 Def0099
+S A$maind\main$275 Def0094
+S A$maind\main$185 Def0055
+S A$maind\main$176 Def0051
+S A$maind\main$158 Def0046
+S A$maind\main$149 Def0040
+S A$maind\main$384 Def00B8
+S A$maind\main$348 Def00AA
+S A$maind\main$177 Def0053
+S A$maind\main$159 Def0047
+S A$maind\main$367 Def00B3
+S A$maind\main$349 Def00AB
+S A$maind\main$268 Def0090
+S A$maind\main$169 Def004C
+S G$lcd_isr$0$0 Def00A0
+S A$maind\main$377 Def00B4
+S A$maind\main$359 Def00AF
+S A$maind\main$396 Def00BD
+S A$maind\main$378 Def00B5
+S A$maind\main$297 Def009A
+S A$maind\main$388 Def00B9
+S A$maind\main$379 Def00B6
+S A$maind\main$389 Def00BA
+S G$main$0$0 Def0000
+S XG$timer_isr$0$0 Def0095
+S A$maind\main$92 Def0000
+S G$vblank_isr$0$0 Def0096
+S _IEF_HILO Def0056
+S _lcd_isr Def00A0
+A _DATA size 0 flags 0 addr 0
+A _DABS size 0 flags 8 addr 0
+A _HOME size 0 flags 0 addr 0
+A _GSINIT size 0 flags 0 addr 0
+A _GSFINAL size 0 flags 0 addr 0
+A _CABS size 0 flags 8 addr 0
+T 00 00
+R 00 00 00 00
+T 00 00 F3
+R 00 00 00 00
+T 01 00
+R 00 00 00 00
+T 01 00 F0 44 D6 90 38 FA FB 3E 00 E0 40 21 30 00
+R 00 00 00 00
+T 0F 00 E5 21 5B 00 E5 21 00 90 E5 CD 00 00 E8 06
+R 00 00 00 00 00 04 00 00 02 0C 0C 00
+T 1D 00 21 68 01 E5 21 00 00 E5 21 00 98 E5 CD
+R 00 00 00 00
+T 2A 00 00 00 E8 06 3E E4 E0 47 3E 00 E0 42 3E 00
+R 00 00 00 00 02 02 0F 00
+T 38 00 E0 43 3E 00 E0 26 3E 81 E0 40 FB 21 5A 00
+R 00 00 00 00 00 0E 00 00
+T 46 00 4E F0 FF B1 E0 FF
+R 00 00 00 00
+T 4C 00
+R 00 00 00 00
+T 4C 00 76 00 F0 42 3C E0 42 18 F7 C9
+R 00 00 00 00
+T 56 00
+R 00 00 00 00
+T 56 00 10
+R 00 00 00 00
+T 57 00
+R 00 00 00 00
+T 57 00 08
+R 00 00 00 00
+T 58 00
+R 00 00 00 00
+T 58 00 04
+R 00 00 00 00
+T 59 00
+R 00 00 00 00
+T 59 00 02
+R 00 00 00 00
+T 5A 00
+R 00 00 00 00
+T 5A 00 01
+R 00 00 00 00
+T 5B 00
+R 00 00 00 00
+T 5B 00 01 01 02 02 04 04 08 08 10 10 20 20 40 40
+R 00 00 00 00
+T 69 00 80 80 80 80 40 40 20 20 10 10 08 08 04 04
+R 00 00 00 00
+T 77 00 02 02 01 01 81 81 42 42 24 24 18 18 18 18
+R 00 00 00 00
+T 85 00 24 24 42 42 81 81
+R 00 00 00 00
+T 8B 00
+R 00 00 00 00
+T 8B 00 FB F5 C5 D5 E5 40 E1 D1 C1 F1 C9
+R 00 00 00 00
+T 96 00
+R 00 00 00 00
+T 96 00 F5 C5 D5 E5 00 E1 D1 C1 F1 D9
+R 00 00 00 00
+T A0 00
+R 00 00 00 00
+T A0 00 F5 C5 D5 E5 40 E1 D1 C1 F1 D9
+R 00 00 00 00
+T AA 00
+R 00 00 00 00
+T AA 00 F5 C5 D5 E5 40 E1 D1 C1 F1 D9
+R 00 00 00 00
+T B4 00
+R 00 00 00 00
+T B4 00 F5 C5 D5 E5 40 E1 D1 C1 F1 D9
+R 00 00 00 00

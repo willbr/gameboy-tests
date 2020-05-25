@@ -1,0 +1,398 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 4.0.0 #11528 (MINGW64)
+                              4 ;--------------------------------------------------------
+                              5 	.module main
+                              6 	.optsdcc -mgbz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _joypad_isr
+                             12 	.globl _serial_isr
+                             13 	.globl _lcd_isr
+                             14 	.globl _vblank_isr
+                             15 	.globl _timer_isr
+                             16 	.globl _main
+                             17 	.globl ___memcpy
+                             18 	.globl _memset
+                             19 	.globl _bgmap
+                             20 	.globl _tiles
+                             21 	.globl _font_tiles
+                             22 	.globl _IEF_VBLANK
+                             23 	.globl _IEF_LCDC
+                             24 	.globl _IEF_TIMER
+                             25 	.globl _IEF_SERIAL
+                             26 	.globl _IEF_HILO
+                             27 ;--------------------------------------------------------
+                             28 ; special function registers
+                             29 ;--------------------------------------------------------
+                     0000    30 G$p1_joy_pad$0_0$0 == 0x0000
+                     0000    31 _p1_joy_pad	=	0x0000
+                     000F    32 G$interrupt_flag$0_0$0 == 0x000f
+                     000F    33 _interrupt_flag	=	0x000f
+                     00FF    34 G$interrupt_enable$0_0$0 == 0x00ff
+                     00FF    35 _interrupt_enable	=	0x00ff
+                     0026    36 G$NR52$0_0$0 == 0x0026
+                     0026    37 _NR52	=	0x0026
+                     0040    38 G$LCDC$0_0$0 == 0x0040
+                     0040    39 _LCDC	=	0x0040
+                     0041    40 G$STAT$0_0$0 == 0x0041
+                     0041    41 _STAT	=	0x0041
+                     0042    42 G$SCY$0_0$0 == 0x0042
+                     0042    43 _SCY	=	0x0042
+                     0043    44 G$SCX$0_0$0 == 0x0043
+                     0043    45 _SCX	=	0x0043
+                     0044    46 G$LY$0_0$0 == 0x0044
+                     0044    47 _LY	=	0x0044
+                     0045    48 G$LYC$0_0$0 == 0x0045
+                     0045    49 _LYC	=	0x0045
+                     0047    50 G$BGP$0_0$0 == 0x0047
+                     0047    51 _BGP	=	0x0047
+                             52 ;--------------------------------------------------------
+                             53 ; ram data
+                             54 ;--------------------------------------------------------
+                             55 	.area _DATA
+                     9000    56 G$tiles$0_0$0 == 0x9000
+                     9000    57 _tiles	=	0x9000
+                     9800    58 G$bgmap$0_0$0 == 0x9800
+                     9800    59 _bgmap	=	0x9800
+                             60 ;--------------------------------------------------------
+                             61 ; absolute external ram data
+                             62 ;--------------------------------------------------------
+                             63 	.area _DABS (ABS)
+                             64 ;--------------------------------------------------------
+                             65 ; global & static initialisations
+                             66 ;--------------------------------------------------------
+                             67 	.area _HOME
+                             68 	.area _GSINIT
+                             69 	.area _GSFINAL
+                             70 	.area _GSINIT
+                             71 ;--------------------------------------------------------
+                             72 ; Home
+                             73 ;--------------------------------------------------------
+                             74 	.area _HOME
+                             75 	.area _HOME
+                             76 ;--------------------------------------------------------
+                             77 ; code
+                             78 ;--------------------------------------------------------
+                             79 	.area _CODE
+                     0000    80 	G$main$0$0	= .
+                             81 	.globl	G$main$0$0
+                     0000    82 	C$main.c$90$0_0$25	= .
+                             83 	.globl	C$main.c$90$0_0$25
+                             84 ;src\main.c:90: void main() {
+                             85 ;	---------------------------------
+                             86 ; Function main
+                             87 ; ---------------------------------
+   0000                      88 _main::
+                     0000    89 	C$main.c$92$2_0$26	= .
+                             90 	.globl	C$main.c$92$2_0$26
+                             91 ;src\main.c:92: while (LY < 144) {} /* wait until vblank */
+   0000 F3                   92 	di
+   0001                      93 00101$:
+   0001 F0 44                94 	ldh	a, (_LY+0)
+   0003 D6 90                95 	sub	a, #0x90
+   0005 38 FA                96 	jr	C,00101$
+   0007 FB                   97 	ei
+                     0008    98 	C$main.c$94$2_0$26	= .
+                             99 	.globl	C$main.c$94$2_0$26
+                            100 ;src\main.c:94: LCDC = 0;
+   0008 3E 00               101 	ld	a, #0x00
+   000A E0 40               102 	ldh	(_LCDC+0),a
+                     000C   103 	C$main.c$96$2_0$26	= .
+                            104 	.globl	C$main.c$96$2_0$26
+                            105 ;src\main.c:96: memcpy(&tiles, &font_tiles, sizeof(font_tiles));
+   000C 21 30 00            106 	ld	hl, #0x0030
+   000F E5                  107 	push	hl
+   0010 21r5Br00            108 	ld	hl, #_font_tiles
+   0013 E5                  109 	push	hl
+   0014 21 00 90            110 	ld	hl, #_tiles
+   0017 E5                  111 	push	hl
+   0018 CDr00r00            112 	call	___memcpy
+   001B E8 06               113 	add	sp, #6
+                     001D   114 	C$main.c$99$2_0$26	= .
+                            115 	.globl	C$main.c$99$2_0$26
+                            116 ;src\main.c:99: memset(&bgmap, 0, 360);
+   001D 21 68 01            117 	ld	hl, #0x0168
+   0020 E5                  118 	push	hl
+   0021 21 00 00            119 	ld	hl, #0x0000
+   0024 E5                  120 	push	hl
+   0025 21 00 98            121 	ld	hl, #_bgmap
+   0028 E5                  122 	push	hl
+   0029 CDr00r00            123 	call	_memset
+   002C E8 06               124 	add	sp, #6
+                     002E   125 	C$main.c$102$2_0$26	= .
+                            126 	.globl	C$main.c$102$2_0$26
+                            127 ;src\main.c:102: BGP = 0b11100100;
+   002E 3E E4               128 	ld	a, #0xe4
+   0030 E0 47               129 	ldh	(_BGP+0),a
+                     0032   130 	C$main.c$104$2_0$26	= .
+                            131 	.globl	C$main.c$104$2_0$26
+                            132 ;src\main.c:104: SCY = 0;
+   0032 3E 00               133 	ld	a, #0x00
+   0034 E0 42               134 	ldh	(_SCY+0),a
+                     0036   135 	C$main.c$105$2_0$26	= .
+                            136 	.globl	C$main.c$105$2_0$26
+                            137 ;src\main.c:105: SCX = 0;
+   0036 3E 00               138 	ld	a, #0x00
+   0038 E0 43               139 	ldh	(_SCX+0),a
+                     003A   140 	C$main.c$107$2_0$26	= .
+                            141 	.globl	C$main.c$107$2_0$26
+                            142 ;src\main.c:107: NR52 = 0;
+   003A 3E 00               143 	ld	a, #0x00
+   003C E0 26               144 	ldh	(_NR52+0),a
+                     003E   145 	C$main.c$109$2_0$26	= .
+                            146 	.globl	C$main.c$109$2_0$26
+                            147 ;src\main.c:109: LCDC = 0b10000001;
+   003E 3E 81               148 	ld	a, #0x81
+   0040 E0 40               149 	ldh	(_LCDC+0),a
+                     0042   150 	C$main.c$112$1_0$25	= .
+                            151 	.globl	C$main.c$112$1_0$25
+                            152 ;src\main.c:112: __asm__("ei");
+   0042 FB                  153 	ei
+                     0043   154 	C$main.c$113$1_0$25	= .
+                            155 	.globl	C$main.c$113$1_0$25
+                            156 ;src\main.c:113: interrupt_enable |= IEF_VBLANK;
+   0043 21r5Ar00            157 	ld	hl, #_IEF_VBLANK
+   0046 4E                  158 	ld	c, (hl)
+   0047 F0 FF               159 	ldh	a, (_interrupt_enable+0)
+   0049 B1                  160 	or	a, c
+   004A E0 FF               161 	ldh	(_interrupt_enable+0),a
+                     004C   162 	C$main.c$115$1_0$25	= .
+                            163 	.globl	C$main.c$115$1_0$25
+                            164 ;src\main.c:115: while(1) {
+   004C                     165 00105$:
+                     004C   166 	C$main.c$117$2_0$28	= .
+                            167 	.globl	C$main.c$117$2_0$28
+                            168 ;src\main.c:117: "nop");
+   004C 76                  169 	halt
+   004D 00                  170 	nop
+                     004E   171 	C$main.c$118$2_0$28	= .
+                            172 	.globl	C$main.c$118$2_0$28
+                            173 ;src\main.c:118: SCY += 1;
+   004E F0 42               174 	ldh	a, (_SCY+0)
+   0050 3C                  175 	inc	a
+   0051 E0 42               176 	ldh	(_SCY+0),a
+   0053 18 F7               177 	jr	00105$
+                     0055   178 	C$main.c$120$1_0$25	= .
+                            179 	.globl	C$main.c$120$1_0$25
+                            180 ;src\main.c:120: }
+                     0055   181 	C$main.c$120$1_0$25	= .
+                            182 	.globl	C$main.c$120$1_0$25
+                     0055   183 	XG$main$0$0	= .
+                            184 	.globl	XG$main$0$0
+   0055 C9                  185 	ret
+                     0056   186 G$IEF_HILO$0_0$0 == .
+   0056                     187 _IEF_HILO:
+   0056 10                  188 	.db #0x10	; 16
+                     0057   189 G$IEF_SERIAL$0_0$0 == .
+   0057                     190 _IEF_SERIAL:
+   0057 08                  191 	.db #0x08	; 8
+                     0058   192 G$IEF_TIMER$0_0$0 == .
+   0058                     193 _IEF_TIMER:
+   0058 04                  194 	.db #0x04	; 4
+                     0059   195 G$IEF_LCDC$0_0$0 == .
+   0059                     196 _IEF_LCDC:
+   0059 02                  197 	.db #0x02	; 2
+                     005A   198 G$IEF_VBLANK$0_0$0 == .
+   005A                     199 _IEF_VBLANK:
+   005A 01                  200 	.db #0x01	; 1
+                     005B   201 G$font_tiles$0_0$0 == .
+   005B                     202 _font_tiles:
+   005B 01                  203 	.db #0x01	; 1
+   005C 01                  204 	.db #0x01	; 1
+   005D 02                  205 	.db #0x02	; 2
+   005E 02                  206 	.db #0x02	; 2
+   005F 04                  207 	.db #0x04	; 4
+   0060 04                  208 	.db #0x04	; 4
+   0061 08                  209 	.db #0x08	; 8
+   0062 08                  210 	.db #0x08	; 8
+   0063 10                  211 	.db #0x10	; 16
+   0064 10                  212 	.db #0x10	; 16
+   0065 20                  213 	.db #0x20	; 32
+   0066 20                  214 	.db #0x20	; 32
+   0067 40                  215 	.db #0x40	; 64
+   0068 40                  216 	.db #0x40	; 64
+   0069 80                  217 	.db #0x80	; 128
+   006A 80                  218 	.db #0x80	; 128
+   006B 80                  219 	.db #0x80	; 128
+   006C 80                  220 	.db #0x80	; 128
+   006D 40                  221 	.db #0x40	; 64
+   006E 40                  222 	.db #0x40	; 64
+   006F 20                  223 	.db #0x20	; 32
+   0070 20                  224 	.db #0x20	; 32
+   0071 10                  225 	.db #0x10	; 16
+   0072 10                  226 	.db #0x10	; 16
+   0073 08                  227 	.db #0x08	; 8
+   0074 08                  228 	.db #0x08	; 8
+   0075 04                  229 	.db #0x04	; 4
+   0076 04                  230 	.db #0x04	; 4
+   0077 02                  231 	.db #0x02	; 2
+   0078 02                  232 	.db #0x02	; 2
+   0079 01                  233 	.db #0x01	; 1
+   007A 01                  234 	.db #0x01	; 1
+   007B 81                  235 	.db #0x81	; 129
+   007C 81                  236 	.db #0x81	; 129
+   007D 42                  237 	.db #0x42	; 66	'B'
+   007E 42                  238 	.db #0x42	; 66	'B'
+   007F 24                  239 	.db #0x24	; 36
+   0080 24                  240 	.db #0x24	; 36
+   0081 18                  241 	.db #0x18	; 24
+   0082 18                  242 	.db #0x18	; 24
+   0083 18                  243 	.db #0x18	; 24
+   0084 18                  244 	.db #0x18	; 24
+   0085 24                  245 	.db #0x24	; 36
+   0086 24                  246 	.db #0x24	; 36
+   0087 42                  247 	.db #0x42	; 66	'B'
+   0088 42                  248 	.db #0x42	; 66	'B'
+   0089 81                  249 	.db #0x81	; 129
+   008A 81                  250 	.db #0x81	; 129
+                     008B   251 	G$timer_isr$0$0	= .
+                            252 	.globl	G$timer_isr$0$0
+                     008B   253 	C$main.c$122$1_0$30	= .
+                            254 	.globl	C$main.c$122$1_0$30
+                            255 ;src\main.c:122: void timer_isr(void) __interrupt
+                            256 ;	---------------------------------
+                            257 ; Function timer_isr
+                            258 ; ---------------------------------
+   008B                     259 _timer_isr::
+   008B FB                  260 	ei
+   008C F5                  261 	push	af
+   008D C5                  262 	push bc
+   008E D5                  263 	push de
+   008F E5                  264 	push hl
+                     0090   265 	C$main.c$124$1_0$30	= .
+                            266 	.globl	C$main.c$124$1_0$30
+                            267 ;src\main.c:124: __asm__("ld b, b;bgb breakpoint");
+   0090 40                  268 	ld	b, b;bgb breakpoint
+                     0091   269 	C$main.c$125$1_0$30	= .
+                            270 	.globl	C$main.c$125$1_0$30
+                            271 ;src\main.c:125: }
+   0091 E1                  272 	pop	hl
+   0092 D1                  273 	pop de
+   0093 C1                  274 	pop bc
+   0094 F1                  275 	pop af
+                     0095   276 	C$main.c$125$1_0$30	= .
+                            277 	.globl	C$main.c$125$1_0$30
+                     0095   278 	XG$timer_isr$0$0	= .
+                            279 	.globl	XG$timer_isr$0$0
+   0095 C9                  280 	ret
+                     0096   281 	G$vblank_isr$0$0	= .
+                            282 	.globl	G$vblank_isr$0$0
+                     0096   283 	C$main.c$127$1_0$32	= .
+                            284 	.globl	C$main.c$127$1_0$32
+                            285 ;src\main.c:127: void vblank_isr(void) __critical __interrupt
+                            286 ;	---------------------------------
+                            287 ; Function vblank_isr
+                            288 ; ---------------------------------
+   0096                     289 _vblank_isr::
+   0096 F5                  290 	push	af
+   0097 C5                  291 	push bc
+   0098 D5                  292 	push de
+   0099 E5                  293 	push hl
+                     009A   294 	C$main.c$129$1_0$32	= .
+                            295 	.globl	C$main.c$129$1_0$32
+                            296 ;src\main.c:129: __asm__("nop");
+   009A 00                  297 	nop
+                     009B   298 	C$main.c$131$1_0$32	= .
+                            299 	.globl	C$main.c$131$1_0$32
+                            300 ;src\main.c:131: }
+   009B E1                  301 	pop	hl
+   009C D1                  302 	pop de
+   009D C1                  303 	pop bc
+   009E F1                  304 	pop af
+                     009F   305 	C$main.c$131$1_0$32	= .
+                            306 	.globl	C$main.c$131$1_0$32
+                     009F   307 	XG$vblank_isr$0$0	= .
+                            308 	.globl	XG$vblank_isr$0$0
+   009F D9                  309 	reti
+                     00A0   310 	G$lcd_isr$0$0	= .
+                            311 	.globl	G$lcd_isr$0$0
+                     00A0   312 	C$main.c$133$1_0$34	= .
+                            313 	.globl	C$main.c$133$1_0$34
+                            314 ;src\main.c:133: void lcd_isr(void) __critical __interrupt
+                            315 ;	---------------------------------
+                            316 ; Function lcd_isr
+                            317 ; ---------------------------------
+   00A0                     318 _lcd_isr::
+   00A0 F5                  319 	push	af
+   00A1 C5                  320 	push bc
+   00A2 D5                  321 	push de
+   00A3 E5                  322 	push hl
+                     00A4   323 	C$main.c$135$1_0$34	= .
+                            324 	.globl	C$main.c$135$1_0$34
+                            325 ;src\main.c:135: __asm__("ld b, b;bgb breakpoint");
+   00A4 40                  326 	ld	b, b;bgb breakpoint
+                     00A5   327 	C$main.c$136$1_0$34	= .
+                            328 	.globl	C$main.c$136$1_0$34
+                            329 ;src\main.c:136: }
+   00A5 E1                  330 	pop	hl
+   00A6 D1                  331 	pop de
+   00A7 C1                  332 	pop bc
+   00A8 F1                  333 	pop af
+                     00A9   334 	C$main.c$136$1_0$34	= .
+                            335 	.globl	C$main.c$136$1_0$34
+                     00A9   336 	XG$lcd_isr$0$0	= .
+                            337 	.globl	XG$lcd_isr$0$0
+   00A9 D9                  338 	reti
+                     00AA   339 	G$serial_isr$0$0	= .
+                            340 	.globl	G$serial_isr$0$0
+                     00AA   341 	C$main.c$138$1_0$36	= .
+                            342 	.globl	C$main.c$138$1_0$36
+                            343 ;src\main.c:138: void serial_isr(void) __critical __interrupt
+                            344 ;	---------------------------------
+                            345 ; Function serial_isr
+                            346 ; ---------------------------------
+   00AA                     347 _serial_isr::
+   00AA F5                  348 	push	af
+   00AB C5                  349 	push bc
+   00AC D5                  350 	push de
+   00AD E5                  351 	push hl
+                     00AE   352 	C$main.c$140$1_0$36	= .
+                            353 	.globl	C$main.c$140$1_0$36
+                            354 ;src\main.c:140: __asm__("ld b, b;bgb breakpoint");
+   00AE 40                  355 	ld	b, b;bgb breakpoint
+                     00AF   356 	C$main.c$141$1_0$36	= .
+                            357 	.globl	C$main.c$141$1_0$36
+                            358 ;src\main.c:141: }
+   00AF E1                  359 	pop	hl
+   00B0 D1                  360 	pop de
+   00B1 C1                  361 	pop bc
+   00B2 F1                  362 	pop af
+                     00B3   363 	C$main.c$141$1_0$36	= .
+                            364 	.globl	C$main.c$141$1_0$36
+                     00B3   365 	XG$serial_isr$0$0	= .
+                            366 	.globl	XG$serial_isr$0$0
+   00B3 D9                  367 	reti
+                     00B4   368 	G$joypad_isr$0$0	= .
+                            369 	.globl	G$joypad_isr$0$0
+                     00B4   370 	C$main.c$143$1_0$38	= .
+                            371 	.globl	C$main.c$143$1_0$38
+                            372 ;src\main.c:143: void joypad_isr(void) __critical __interrupt
+                            373 ;	---------------------------------
+                            374 ; Function joypad_isr
+                            375 ; ---------------------------------
+   00B4                     376 _joypad_isr::
+   00B4 F5                  377 	push	af
+   00B5 C5                  378 	push bc
+   00B6 D5                  379 	push de
+   00B7 E5                  380 	push hl
+                     00B8   381 	C$main.c$145$1_0$38	= .
+                            382 	.globl	C$main.c$145$1_0$38
+                            383 ;src\main.c:145: __asm__("ld b, b;bgb breakpoint");
+   00B8 40                  384 	ld	b, b;bgb breakpoint
+                     00B9   385 	C$main.c$146$1_0$38	= .
+                            386 	.globl	C$main.c$146$1_0$38
+                            387 ;src\main.c:146: }
+   00B9 E1                  388 	pop	hl
+   00BA D1                  389 	pop de
+   00BB C1                  390 	pop bc
+   00BC F1                  391 	pop af
+                     00BD   392 	C$main.c$146$1_0$38	= .
+                            393 	.globl	C$main.c$146$1_0$38
+                     00BD   394 	XG$joypad_isr$0$0	= .
+                            395 	.globl	XG$joypad_isr$0$0
+   00BD D9                  396 	reti
+                            397 	.area _CODE
+                            398 	.area _CABS (ABS)
