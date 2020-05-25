@@ -1,0 +1,54 @@
+get something on screen
+    __srf __at (0xFF) abc;
+read joystick
+
+http://norecess.cpcscene.net/sdcc-part-4---tips--tricks.html
+
+ideas
+    compare c to asm
+
+__banked
+volatile
+bit
+__data
+__xdata
+__naked
+
+Interrupt Service Routines
+    __interrupt
+    __using
+    __critical
+
+sdcc
+    -mgbz80
+    --no-std-crt0
+    --data 0x1234
+    -L
+    -o a.ihx
+    --std-sdccxx
+        binary constants 0b00001111
+
+asasgb -plosgff
+
+makebin
+
+compile to asm
+then use rgbds
+
+memory controllers
+inline asm
+    incbin
+    read about the SDCC assembler
+        http://svn.code.sf.net/p/sdcc/code/trunk/sdcc/sdas/doc/asmlnk.txt
+    __asm__("");
+    __asm
+    __endasm;
+    transcompile rgbds code to SDCC?
+
+full functions in asm
+
+crt0.rel
+
+peephole optimizer
+pragma
+
