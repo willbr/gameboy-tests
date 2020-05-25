@@ -1,0 +1,80 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 $1                                                             0286 R
+    .__.$$$.                                                    =  2710 L
+    .__.ABS.                                                    =  0000 G
+    .__.CPU.                                                    =  0000 L
+    .__.H$L.                                                    =  0000 L
+    _BGP                                                        =  0047 
+    _DMA                                                        =  0046 
+    _HRAM                                                       =  FF80 G
+  0 _IEF_HILO                                                      0038 GR
+  0 _IEF_LCDC                                                      003B GR
+  0 _IEF_SERIAL                                                    0039 GR
+  0 _IEF_TIMER                                                     003A GR
+  0 _IEF_VBLANK                                                    003C GR
+    _LCDC                                                       =  0040 
+    _LY                                                         =  0044 
+    _LYC                                                        =  0045 
+    _NR52                                                       =  0026 
+    _OAMRAM                                                     =  FE00 G
+    _OBP0                                                       =  0048 
+    _OBP1                                                       =  0049 
+    _SCX                                                        =  0043 
+    _SCY                                                        =  0042 
+    _STAT                                                       =  0041 
+    ___memcpy                                                      **** GX
+    __modsint                                                      **** GX
+    _bgmap                                                      =  9800 G
+  0 _dma_copy                                                      027E GR
+  0 _draw                                                          019A GR
+  0 _font_tiles                                                    003D GR
+  0 _init                                                          02D6 GR
+    _interrupt_enable                                           =  00FF 
+    _interrupt_flag                                             =  000F 
+  1 _joypad                                                        00A0 GR
+  1 _joypad_btn_state                                              00A2 GR
+  1 _joypad_dpad_state                                             00A1 GR
+  0 _joypad_isr                                                    0274 GR
+  0 _lcd_isr                                                       0260 GR
+  0 _main                                                          023B GR
+    _memset                                                        **** GX
+    _oam                                                        =  FE00 G
+    _p1_joypad                                                  =  0000 
+  0 _poll_joypad                                                   028A GR
+  0 _random8                                                       017D GR
+  0 _random8_between                                               0000 GR
+  1 _random8_i_65536_32                                            00A3 R
+  0 _random_table                                                  007D GR
+  0 _serial_isr                                                    026A GR
+  1 _shadow_oam                                                    0000 GR
+    _tiles                                                      =  9000 G
+  0 _timer_isr                                                     0249 GR
+  0 _update                                                        018E GR
+  1 _update_i_65536_34                                             00A4 R
+  1 _update_j_65536_34                                             00A5 R
+  0 _vblank_isr                                                    0254 GR
+    rP1                                                         =  FF00 
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 2.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 3.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE                                      size  370   flags    0
+   1 _DATA                                      size   A6   flags    0
+   2 _DABS                                      size    0   flags    8
+   3 _HOME                                      size    0   flags    0
+   4 _GSINIT                                    size   14   flags    0
+   5 _GSFINAL                                   size    0   flags    0
+   6 _CABS                                      size    0   flags    8
+

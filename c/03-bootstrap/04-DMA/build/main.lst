@@ -1,0 +1,900 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 4.0.0 #11528 (MINGW64)
+                              4 ;--------------------------------------------------------
+                              5 	.module main
+                              6 	.optsdcc -mgbz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _joypad_isr
+                             12 	.globl _serial_isr
+                             13 	.globl _lcd_isr
+                             14 	.globl _vblank_isr
+                             15 	.globl _timer_isr
+                             16 	.globl _main
+                             17 	.globl _random8_between
+                             18 	.globl ___memcpy
+                             19 	.globl _memset
+                             20 	.globl _joypad_btn_state
+                             21 	.globl _joypad_dpad_state
+                             22 	.globl _joypad
+                             23 	.globl _shadow_oam
+                             24 	.globl _oam
+                             25 	.globl _HRAM
+                             26 	.globl _OAMRAM
+                             27 	.globl _bgmap
+                             28 	.globl _tiles
+                             29 	.globl _random_table
+                             30 	.globl _font_tiles
+                             31 	.globl _IEF_VBLANK
+                             32 	.globl _IEF_LCDC
+                             33 	.globl _IEF_TIMER
+                             34 	.globl _IEF_SERIAL
+                             35 	.globl _IEF_HILO
+                             36 	.globl _random8
+                             37 	.globl _update
+                             38 	.globl _draw
+                             39 	.globl _dma_copy
+                             40 	.globl _poll_joypad
+                             41 	.globl _init
+                             42 ;--------------------------------------------------------
+                             43 ; special function registers
+                             44 ;--------------------------------------------------------
+                     0000    45 _p1_joypad	=	0x0000
+                     000F    46 _interrupt_flag	=	0x000f
+                     00FF    47 _interrupt_enable	=	0x00ff
+                     0026    48 _NR52	=	0x0026
+                     0040    49 _LCDC	=	0x0040
+                     0041    50 _STAT	=	0x0041
+                     0042    51 _SCY	=	0x0042
+                     0043    52 _SCX	=	0x0043
+                     0044    53 _LY	=	0x0044
+                     0045    54 _LYC	=	0x0045
+                     0046    55 _DMA	=	0x0046
+                     0047    56 _BGP	=	0x0047
+                     0048    57 _OBP0	=	0x0048
+                     0049    58 _OBP1	=	0x0049
+                             59 ;--------------------------------------------------------
+                             60 ; ram data
+                             61 ;--------------------------------------------------------
+                             62 	.area _DATA
+                     9000    63 _tiles	=	0x9000
+                     9800    64 _bgmap	=	0x9800
+                     FE00    65 _OAMRAM	=	0xfe00
+                     FF80    66 _HRAM	=	0xff80
+                     FE00    67 _oam	=	0xfe00
+   0000                      68 _shadow_oam::
+   0000                      69 	.ds 160
+   00A0                      70 _joypad::
+   00A0                      71 	.ds 1
+   00A1                      72 _joypad_dpad_state::
+   00A1                      73 	.ds 1
+   00A2                      74 _joypad_btn_state::
+   00A2                      75 	.ds 1
+   00A3                      76 _random8_i_65536_32:
+   00A3                      77 	.ds 1
+   00A4                      78 _update_i_65536_34:
+   00A4                      79 	.ds 1
+   00A5                      80 _update_j_65536_34:
+   00A5                      81 	.ds 1
+                             82 ;--------------------------------------------------------
+                             83 ; absolute external ram data
+                             84 ;--------------------------------------------------------
+                             85 	.area _DABS (ABS)
+                             86 ;--------------------------------------------------------
+                             87 ; global & static initialisations
+                             88 ;--------------------------------------------------------
+                             89 	.area _HOME
+                             90 	.area _GSINIT
+                             91 	.area _GSFINAL
+                             92 	.area _GSINIT
+                             93 ;src\main.c:247: static u8 i = 123;
+   0000 21rA3r00             94 	ld	hl, #_random8_i_65536_32
+   0003 36 7B                95 	ld	(hl), #0x7b
+                             96 ;src\main.c:199: u8 joypad = 0;
+   0005 21rA0r00             97 	ld	hl, #_joypad
+   0008 36 00                98 	ld	(hl), #0x00
+                             99 ;src\main.c:200: u8 joypad_dpad_state = 0;
+   000A 21rA1r00            100 	ld	hl, #_joypad_dpad_state
+   000D 36 00               101 	ld	(hl), #0x00
+                            102 ;src\main.c:201: u8 joypad_btn_state = 0;
+   000F 21rA2r00            103 	ld	hl, #_joypad_btn_state
+   0012 36 00               104 	ld	(hl), #0x00
+                            105 ;--------------------------------------------------------
+                            106 ; Home
+                            107 ;--------------------------------------------------------
+                            108 	.area _HOME
+                            109 	.area _HOME
+                            110 ;--------------------------------------------------------
+                            111 ; code
+                            112 ;--------------------------------------------------------
+                            113 	.area _CODE
+                            114 ;src\main.c:240: char random8_between(char min, char max)
+                            115 ;	---------------------------------
+                            116 ; Function random8_between
+                            117 ; ---------------------------------
+   0000                     118 _random8_between::
+   0000 E8 FD               119 	add	sp, #-3
+                            120 ;src\main.c:242: return (random8() % (max + 1 - min)) + min;
+   0002 CDr7Dr01            121 	call	_random8
+   0005 F8 00               122 	ldhl	sp,	#0
+   0007 73                  123 	ld	(hl), e
+   0008 F8 06               124 	ldhl	sp,	#6
+   000A 4E                  125 	ld	c, (hl)
+   000B 06 00               126 	ld	b, #0x00
+   000D 03                  127 	inc	bc
+   000E F8 01               128 	ldhl	sp,	#1
+   0010 71                  129 	ld	(hl), c
+   0011 23                  130 	inc	hl
+   0012 70                  131 	ld	(hl), b
+   0013 F8 05               132 	ldhl	sp,	#5
+   0015 4E                  133 	ld	c, (hl)
+   0016 06 00               134 	ld	b, #0x00
+   0018 F8 01               135 	ldhl	sp,#(2 - 1)
+   001A 5E                  136 	ld	e, (hl)
+   001B 23                  137 	inc	hl
+   001C 56                  138 	ld	d, (hl)
+   001D 7B                  139 	ld	a, e
+   001E 91                  140 	sub	a, c
+   001F 5F                  141 	ld	e, a
+   0020 7A                  142 	ld	a, d
+   0021 98                  143 	sbc	a, b
+   0022 47                  144 	ld	b, a
+   0023 4B                  145 	ld	c, e
+   0024 2B                  146 	dec	hl
+   0025 2B                  147 	dec	hl
+   0026 5E                  148 	ld	e, (hl)
+   0027 16 00               149 	ld	d, #0x00
+   0029 C5                  150 	push	bc
+   002A D5                  151 	push	de
+   002B CDr00r00            152 	call	__modsint
+   002E E8 04               153 	add	sp, #4
+   0030 F8 05               154 	ldhl	sp,	#5
+   0032 7E                  155 	ld	a, (hl)
+   0033 83                  156 	add	a, e
+   0034 5F                  157 	ld	e, a
+                            158 ;src\main.c:243: }
+   0035 E8 03               159 	add	sp, #3
+   0037 C9                  160 	ret
+   0038                     161 _IEF_HILO:
+   0038 10                  162 	.db #0x10	; 16
+   0039                     163 _IEF_SERIAL:
+   0039 08                  164 	.db #0x08	; 8
+   003A                     165 _IEF_TIMER:
+   003A 04                  166 	.db #0x04	; 4
+   003B                     167 _IEF_LCDC:
+   003B 02                  168 	.db #0x02	; 2
+   003C                     169 _IEF_VBLANK:
+   003C 01                  170 	.db #0x01	; 1
+   003D                     171 _font_tiles:
+   003D 00                  172 	.db #0x00	; 0
+   003E 00                  173 	.db #0x00	; 0
+   003F 00                  174 	.db #0x00	; 0
+   0040 00                  175 	.db #0x00	; 0
+   0041 00                  176 	.db #0x00	; 0
+   0042 00                  177 	.db #0x00	; 0
+   0043 00                  178 	.db #0x00	; 0
+   0044 00                  179 	.db #0x00	; 0
+   0045 00                  180 	.db #0x00	; 0
+   0046 00                  181 	.db #0x00	; 0
+   0047 00                  182 	.db #0x00	; 0
+   0048 00                  183 	.db #0x00	; 0
+   0049 00                  184 	.db #0x00	; 0
+   004A 00                  185 	.db #0x00	; 0
+   004B 00                  186 	.db #0x00	; 0
+   004C 00                  187 	.db #0x00	; 0
+   004D 01                  188 	.db #0x01	; 1
+   004E 01                  189 	.db #0x01	; 1
+   004F 02                  190 	.db #0x02	; 2
+   0050 02                  191 	.db #0x02	; 2
+   0051 04                  192 	.db #0x04	; 4
+   0052 04                  193 	.db #0x04	; 4
+   0053 08                  194 	.db #0x08	; 8
+   0054 08                  195 	.db #0x08	; 8
+   0055 10                  196 	.db #0x10	; 16
+   0056 10                  197 	.db #0x10	; 16
+   0057 20                  198 	.db #0x20	; 32
+   0058 20                  199 	.db #0x20	; 32
+   0059 40                  200 	.db #0x40	; 64
+   005A 40                  201 	.db #0x40	; 64
+   005B 80                  202 	.db #0x80	; 128
+   005C 80                  203 	.db #0x80	; 128
+   005D 80                  204 	.db #0x80	; 128
+   005E 80                  205 	.db #0x80	; 128
+   005F 40                  206 	.db #0x40	; 64
+   0060 40                  207 	.db #0x40	; 64
+   0061 20                  208 	.db #0x20	; 32
+   0062 20                  209 	.db #0x20	; 32
+   0063 10                  210 	.db #0x10	; 16
+   0064 10                  211 	.db #0x10	; 16
+   0065 08                  212 	.db #0x08	; 8
+   0066 08                  213 	.db #0x08	; 8
+   0067 04                  214 	.db #0x04	; 4
+   0068 04                  215 	.db #0x04	; 4
+   0069 02                  216 	.db #0x02	; 2
+   006A 02                  217 	.db #0x02	; 2
+   006B 01                  218 	.db #0x01	; 1
+   006C 01                  219 	.db #0x01	; 1
+   006D 81                  220 	.db #0x81	; 129
+   006E 81                  221 	.db #0x81	; 129
+   006F 42                  222 	.db #0x42	; 66	'B'
+   0070 42                  223 	.db #0x42	; 66	'B'
+   0071 24                  224 	.db #0x24	; 36
+   0072 24                  225 	.db #0x24	; 36
+   0073 18                  226 	.db #0x18	; 24
+   0074 18                  227 	.db #0x18	; 24
+   0075 18                  228 	.db #0x18	; 24
+   0076 18                  229 	.db #0x18	; 24
+   0077 24                  230 	.db #0x24	; 36
+   0078 24                  231 	.db #0x24	; 36
+   0079 42                  232 	.db #0x42	; 66	'B'
+   007A 42                  233 	.db #0x42	; 66	'B'
+   007B 81                  234 	.db #0x81	; 129
+   007C 81                  235 	.db #0x81	; 129
+   007D                     236 _random_table:
+   007D 67                  237 	.db #0x67	; 103	'g'
+   007E A8                  238 	.db #0xa8	; 168
+   007F 34                  239 	.db #0x34	; 52	'4'
+   0080 6E                  240 	.db #0x6e	; 110	'n'
+   0081 99                  241 	.db #0x99	; 153
+   0082 8B                  242 	.db #0x8b	; 139
+   0083 0E                  243 	.db #0x0e	; 14
+   0084 20                  244 	.db #0x20	; 32
+   0085 C6                  245 	.db #0xc6	; 198
+   0086 F3                  246 	.db #0xf3	; 243
+   0087 C3                  247 	.db #0xc3	; 195
+   0088 7A                  248 	.db #0x7a	; 122	'z'
+   0089 0A                  249 	.db #0x0a	; 10
+   008A BA                  250 	.db #0xba	; 186
+   008B AE                  251 	.db #0xae	; 174
+   008C 9F                  252 	.db #0x9f	; 159
+   008D 80                  253 	.db #0x80	; 128
+   008E 2B                  254 	.db #0x2b	; 43
+   008F A2                  255 	.db #0xa2	; 162
+   0090 6D                  256 	.db #0x6d	; 109	'm'
+   0091 3E                  257 	.db #0x3e	; 62
+   0092 BF                  258 	.db #0xbf	; 191
+   0093 68                  259 	.db #0x68	; 104	'h'
+   0094 B7                  260 	.db #0xb7	; 183
+   0095 D8                  261 	.db #0xd8	; 216
+   0096 33                  262 	.db #0x33	; 51	'3'
+   0097 C9                  263 	.db #0xc9	; 201
+   0098 B1                  264 	.db #0xb1	; 177
+   0099 DB                  265 	.db #0xdb	; 219
+   009A 07                  266 	.db #0x07	; 7
+   009B AA                  267 	.db #0xaa	; 170
+   009C DA                  268 	.db #0xda	; 218
+   009D 38                  269 	.db #0x38	; 56	'8'
+   009E 24                  270 	.db #0x24	; 36
+   009F 21                  271 	.db #0x21	; 33
+   00A0 37                  272 	.db #0x37	; 55	'7'
+   00A1 98                  273 	.db #0x98	; 152
+   00A2 7B                  274 	.db #0x7b	; 123
+   00A3 D6                  275 	.db #0xd6	; 214
+   00A4 F5                  276 	.db #0xf5	; 245
+   00A5 63                  277 	.db #0x63	; 99	'c'
+   00A6 5D                  278 	.db #0x5d	; 93
+   00A7 EB                  279 	.db #0xeb	; 235
+   00A8 D3                  280 	.db #0xd3	; 211
+   00A9 95                  281 	.db #0x95	; 149
+   00AA E2                  282 	.db #0xe2	; 226
+   00AB D2                  283 	.db #0xd2	; 210
+   00AC BC                  284 	.db #0xbc	; 188
+   00AD 4B                  285 	.db #0x4b	; 75	'K'
+   00AE FA                  286 	.db #0xfa	; 250
+   00AF 89                  287 	.db #0x89	; 137
+   00B0 1F                  288 	.db #0x1f	; 31
+   00B1 82                  289 	.db #0x82	; 130
+   00B2 0B                  290 	.db #0x0b	; 11
+   00B3 A4                  291 	.db #0xa4	; 164
+   00B4 01                  292 	.db #0x01	; 1
+   00B5 76                  293 	.db #0x76	; 118	'v'
+   00B6 FB                  294 	.db #0xfb	; 251
+   00B7 FE                  295 	.db #0xfe	; 254
+   00B8 8F                  296 	.db #0x8f	; 143
+   00B9 50                  297 	.db #0x50	; 80	'P'
+   00BA 51                  298 	.db #0x51	; 81	'Q'
+   00BB E1                  299 	.db #0xe1	; 225
+   00BC 6C                  300 	.db #0x6c	; 108	'l'
+   00BD FC                  301 	.db #0xfc	; 252
+   00BE E4                  302 	.db #0xe4	; 228
+   00BF E6                  303 	.db #0xe6	; 230
+   00C0 F9                  304 	.db #0xf9	; 249
+   00C1 40                  305 	.db #0x40	; 64
+   00C2 32                  306 	.db #0x32	; 50	'2'
+   00C3 F0                  307 	.db #0xf0	; 240
+   00C4 62                  308 	.db #0x62	; 98	'b'
+   00C5 EC                  309 	.db #0xec	; 236
+   00C6 9B                  310 	.db #0x9b	; 155
+   00C7 84                  311 	.db #0x84	; 132
+   00C8 27                  312 	.db #0x27	; 39
+   00C9 0F                  313 	.db #0x0f	; 15
+   00CA 19                  314 	.db #0x19	; 25
+   00CB 13                  315 	.db #0x13	; 19
+   00CC F8                  316 	.db #0xf8	; 248
+   00CD CE                  317 	.db #0xce	; 206
+   00CE 8C                  318 	.db #0x8c	; 140
+   00CF CA                  319 	.db #0xca	; 202
+   00D0 0C                  320 	.db #0x0c	; 12
+   00D1 E9                  321 	.db #0xe9	; 233
+   00D2 DC                  322 	.db #0xdc	; 220
+   00D3 5E                  323 	.db #0x5e	; 94
+   00D4 E3                  324 	.db #0xe3	; 227
+   00D5 17                  325 	.db #0x17	; 23
+   00D6 AF                  326 	.db #0xaf	; 175
+   00D7 53                  327 	.db #0x53	; 83	'S'
+   00D8 1A                  328 	.db #0x1a	; 26
+   00D9 AB                  329 	.db #0xab	; 171
+   00DA AD                  330 	.db #0xad	; 173
+   00DB 6B                  331 	.db #0x6b	; 107	'k'
+   00DC 75                  332 	.db #0x75	; 117	'u'
+   00DD 94                  333 	.db #0x94	; 148
+   00DE BE                  334 	.db #0xbe	; 190
+   00DF F6                  335 	.db #0xf6	; 246
+   00E0 5A                  336 	.db #0x5a	; 90	'Z'
+   00E1 18                  337 	.db #0x18	; 24
+   00E2 3D                  338 	.db #0x3d	; 61
+   00E3 14                  339 	.db #0x14	; 20
+   00E4 22                  340 	.db #0x22	; 34
+   00E5 46                  341 	.db #0x46	; 70	'F'
+   00E6 59                  342 	.db #0x59	; 89	'Y'
+   00E7 6F                  343 	.db #0x6f	; 111	'o'
+   00E8 58                  344 	.db #0x58	; 88	'X'
+   00E9 85                  345 	.db #0x85	; 133
+   00EA 78                  346 	.db #0x78	; 120	'x'
+   00EB D7                  347 	.db #0xd7	; 215
+   00EC 08                  348 	.db #0x08	; 8
+   00ED ED                  349 	.db #0xed	; 237
+   00EE 26                  350 	.db #0x26	; 38
+   00EF 02                  351 	.db #0x02	; 2
+   00F0 93                  352 	.db #0x93	; 147
+   00F1 1C                  353 	.db #0x1c	; 28
+   00F2 79                  354 	.db #0x79	; 121	'y'
+   00F3 90                  355 	.db #0x90	; 144
+   00F4 2E                  356 	.db #0x2e	; 46
+   00F5 CD                  357 	.db #0xcd	; 205
+   00F6 04                  358 	.db #0x04	; 4
+   00F7 E8                  359 	.db #0xe8	; 232
+   00F8 AC                  360 	.db #0xac	; 172
+   00F9 4A                  361 	.db #0x4a	; 74	'J'
+   00FA F1                  362 	.db #0xf1	; 241
+   00FB 29                  363 	.db #0x29	; 41
+   00FC 10                  364 	.db #0x10	; 16
+   00FD 83                  365 	.db #0x83	; 131
+   00FE 15                  366 	.db #0x15	; 21
+   00FF 73                  367 	.db #0x73	; 115	's'
+   0100 B5                  368 	.db #0xb5	; 181
+   0101 87                  369 	.db #0x87	; 135
+   0102 4D                  370 	.db #0x4d	; 77	'M'
+   0103 D4                  371 	.db #0xd4	; 212
+   0104 86                  372 	.db #0x86	; 134
+   0105 70                  373 	.db #0x70	; 112	'p'
+   0106 8D                  374 	.db #0x8d	; 141
+   0107 C0                  375 	.db #0xc0	; 192
+   0108 57                  376 	.db #0x57	; 87	'W'
+   0109 36                  377 	.db #0x36	; 54	'6'
+   010A 45                  378 	.db #0x45	; 69	'E'
+   010B C7                  379 	.db #0xc7	; 199
+   010C FF                  380 	.db #0xff	; 255
+   010D 23                  381 	.db #0x23	; 35
+   010E D5                  382 	.db #0xd5	; 213
+   010F A3                  383 	.db #0xa3	; 163
+   0110 81                  384 	.db #0x81	; 129
+   0111 A5                  385 	.db #0xa5	; 165
+   0112 E7                  386 	.db #0xe7	; 231
+   0113 97                  387 	.db #0x97	; 151
+   0114 5C                  388 	.db #0x5c	; 92
+   0115 F2                  389 	.db #0xf2	; 242
+   0116 03                  390 	.db #0x03	; 3
+   0117 7C                  391 	.db #0x7c	; 124
+   0118 D0                  392 	.db #0xd0	; 208
+   0119 E5                  393 	.db #0xe5	; 229
+   011A DF                  394 	.db #0xdf	; 223
+   011B 1E                  395 	.db #0x1e	; 30
+   011C B4                  396 	.db #0xb4	; 180
+   011D 1D                  397 	.db #0x1d	; 29
+   011E 12                  398 	.db #0x12	; 18
+   011F 4C                  399 	.db #0x4c	; 76	'L'
+   0120 BB                  400 	.db #0xbb	; 187
+   0121 31                  401 	.db #0x31	; 49	'1'
+   0122 BD                  402 	.db #0xbd	; 189
+   0123 4F                  403 	.db #0x4f	; 79	'O'
+   0124 28                  404 	.db #0x28	; 40
+   0125 9D                  405 	.db #0x9d	; 157
+   0126 41                  406 	.db #0x41	; 65	'A'
+   0127 A1                  407 	.db #0xa1	; 161
+   0128 E0                  408 	.db #0xe0	; 224
+   0129 9E                  409 	.db #0x9e	; 158
+   012A 05                  410 	.db #0x05	; 5
+   012B 66                  411 	.db #0x66	; 102	'f'
+   012C A9                  412 	.db #0xa9	; 169
+   012D 77                  413 	.db #0x77	; 119	'w'
+   012E CC                  414 	.db #0xcc	; 204
+   012F A0                  415 	.db #0xa0	; 160
+   0130 54                  416 	.db #0x54	; 84	'T'
+   0131 B2                  417 	.db #0xb2	; 178
+   0132 8A                  418 	.db #0x8a	; 138
+   0133 F4                  419 	.db #0xf4	; 244
+   0134 C1                  420 	.db #0xc1	; 193
+   0135 3C                  421 	.db #0x3c	; 60
+   0136 1B                  422 	.db #0x1b	; 27
+   0137 3F                  423 	.db #0x3f	; 63
+   0138 61                  424 	.db #0x61	; 97	'a'
+   0139 00                  425 	.db #0x00	; 0
+   013A 65                  426 	.db #0x65	; 101	'e'
+   013B 0D                  427 	.db #0x0d	; 13
+   013C 71                  428 	.db #0x71	; 113	'q'
+   013D 69                  429 	.db #0x69	; 105	'i'
+   013E 56                  430 	.db #0x56	; 86	'V'
+   013F 30                  431 	.db #0x30	; 48	'0'
+   0140 06                  432 	.db #0x06	; 6
+   0141 09                  433 	.db #0x09	; 9
+   0142 7F                  434 	.db #0x7f	; 127
+   0143 88                  435 	.db #0x88	; 136
+   0144 D9                  436 	.db #0xd9	; 217
+   0145 CB                  437 	.db #0xcb	; 203
+   0146 60                  438 	.db #0x60	; 96
+   0147 EE                  439 	.db #0xee	; 238
+   0148 39                  440 	.db #0x39	; 57	'9'
+   0149 C5                  441 	.db #0xc5	; 197
+   014A 74                  442 	.db #0x74	; 116	't'
+   014B 96                  443 	.db #0x96	; 150
+   014C DD                  444 	.db #0xdd	; 221
+   014D C2                  445 	.db #0xc2	; 194
+   014E 2F                  446 	.db #0x2f	; 47
+   014F B6                  447 	.db #0xb6	; 182
+   0150 4E                  448 	.db #0x4e	; 78	'N'
+   0151 9C                  449 	.db #0x9c	; 156
+   0152 D1                  450 	.db #0xd1	; 209
+   0153 91                  451 	.db #0x91	; 145
+   0154 EA                  452 	.db #0xea	; 234
+   0155 7E                  453 	.db #0x7e	; 126
+   0156 5B                  454 	.db #0x5b	; 91
+   0157 64                  455 	.db #0x64	; 100	'd'
+   0158 FD                  456 	.db #0xfd	; 253
+   0159 3A                  457 	.db #0x3a	; 58
+   015A 43                  458 	.db #0x43	; 67	'C'
+   015B 55                  459 	.db #0x55	; 85	'U'
+   015C EF                  460 	.db #0xef	; 239
+   015D 49                  461 	.db #0x49	; 73	'I'
+   015E 47                  462 	.db #0x47	; 71	'G'
+   015F 7D                  463 	.db #0x7d	; 125
+   0160 B0                  464 	.db #0xb0	; 176
+   0161 25                  465 	.db #0x25	; 37
+   0162 2C                  466 	.db #0x2c	; 44
+   0163 6A                  467 	.db #0x6a	; 106	'j'
+   0164 A7                  468 	.db #0xa7	; 167
+   0165 B3                  469 	.db #0xb3	; 179
+   0166 8E                  470 	.db #0x8e	; 142
+   0167 B8                  471 	.db #0xb8	; 184
+   0168 5F                  472 	.db #0x5f	; 95
+   0169 3B                  473 	.db #0x3b	; 59
+   016A CF                  474 	.db #0xcf	; 207
+   016B 2D                  475 	.db #0x2d	; 45
+   016C C8                  476 	.db #0xc8	; 200
+   016D F7                  477 	.db #0xf7	; 247
+   016E 44                  478 	.db #0x44	; 68	'D'
+   016F 35                  479 	.db #0x35	; 53	'5'
+   0170 42                  480 	.db #0x42	; 66	'B'
+   0171 B9                  481 	.db #0xb9	; 185
+   0172 9A                  482 	.db #0x9a	; 154
+   0173 92                  483 	.db #0x92	; 146
+   0174 48                  484 	.db #0x48	; 72	'H'
+   0175 16                  485 	.db #0x16	; 22
+   0176 A6                  486 	.db #0xa6	; 166
+   0177 72                  487 	.db #0x72	; 114	'r'
+   0178 2A                  488 	.db #0x2a	; 42
+   0179 11                  489 	.db #0x11	; 17
+   017A DE                  490 	.db #0xde	; 222
+   017B 52                  491 	.db #0x52	; 82	'R'
+   017C C4                  492 	.db #0xc4	; 196
+                            493 ;src\main.c:245: char random8()
+                            494 ;	---------------------------------
+                            495 ; Function random8
+                            496 ; ---------------------------------
+   017D                     497 _random8::
+                            498 ;src\main.c:248: return random_table[i++];
+   017D 21rA3r00            499 	ld	hl, #_random8_i_65536_32
+   0180 4E                  500 	ld	c, (hl)
+   0181 34                  501 	inc	(hl)
+   0182 3Er7D               502 	ld	a, #<(_random_table)
+   0184 81                  503 	add	a, c
+   0185 4F                  504 	ld	c, a
+   0186 3Es00               505 	ld	a, #>(_random_table)
+   0188 CE 00               506 	adc	a, #0x00
+   018A 47                  507 	ld	b, a
+   018B 0A                  508 	ld	a, (bc)
+   018C 5F                  509 	ld	e, a
+                            510 ;src\main.c:249: }
+   018D C9                  511 	ret
+                            512 ;src\main.c:251: void update(void)
+                            513 ;	---------------------------------
+                            514 ; Function update
+                            515 ; ---------------------------------
+   018E                     516 _update::
+                            517 ;src\main.c:256: OBP0 += 1;
+   018E F0 48               518 	ldh	a, (_OBP0+0)
+   0190 3C                  519 	inc	a
+   0191 E0 48               520 	ldh	(_OBP0+0),a
+                            521 ;src\main.c:257: OBP1 -= 1;
+   0193 F0 49               522 	ldh	a, (_OBP1+0)
+   0195 C6 FF               523 	add	a, #0xff
+   0197 E0 49               524 	ldh	(_OBP1+0),a
+                            525 ;src\main.c:276: }
+   0199 C9                  526 	ret
+                            527 ;src\main.c:279: void draw(void)
+                            528 ;	---------------------------------
+                            529 ; Function draw
+                            530 ; ---------------------------------
+   019A                     531 _draw::
+                            532 ;src\main.c:281: bgmap[ 2][ 8] = btn(j_b) ? 3 : 0;
+   019A 21rA0r00            533 	ld	hl, #_joypad
+   019D 7E                  534 	ld	a, (hl)
+   019E CB 4F               535 	bit	1, a
+   01A0 28 05               536 	jr	Z,00103$
+   01A2 01 03 00            537 	ld	bc, #0x0003
+   01A5 18 03               538 	jr	00104$
+   01A7                     539 00103$:
+   01A7 01 00 00            540 	ld	bc, #0x0000
+   01AA                     541 00104$:
+   01AA 21 48 98            542 	ld	hl, #(_bgmap + 0x0048)
+   01AD 71                  543 	ld	(hl), c
+                            544 ;src\main.c:282: bgmap[ 1][ 9] = btn(j_a) ? 3 : 0;
+   01AE 21rA0r00            545 	ld	hl, #_joypad
+   01B1 7E                  546 	ld	a, (hl)
+   01B2 0F                  547 	rrca
+   01B3 30 05               548 	jr	NC,00105$
+   01B5 01 03 00            549 	ld	bc, #0x0003
+   01B8 18 03               550 	jr	00106$
+   01BA                     551 00105$:
+   01BA 01 00 00            552 	ld	bc, #0x0000
+   01BD                     553 00106$:
+   01BD 21 29 98            554 	ld	hl, #(_bgmap + 0x0029)
+   01C0 71                  555 	ld	(hl), c
+                            556 ;src\main.c:285: bgmap[ 1][ 3] = btn(j_up) ? 3 : 0;
+   01C1 21rA0r00            557 	ld	hl, #_joypad
+   01C4 7E                  558 	ld	a, (hl)
+   01C5 CB 77               559 	bit	6, a
+   01C7 28 05               560 	jr	Z,00107$
+   01C9 01 03 00            561 	ld	bc, #0x0003
+   01CC 18 03               562 	jr	00108$
+   01CE                     563 00107$:
+   01CE 01 00 00            564 	ld	bc, #0x0000
+   01D1                     565 00108$:
+   01D1 21 23 98            566 	ld	hl, #(_bgmap + 0x0023)
+   01D4 71                  567 	ld	(hl), c
+                            568 ;src\main.c:286: bgmap[ 2][ 2] = btn(j_left)  ? 3 : 0;
+   01D5 21rA0r00            569 	ld	hl, #_joypad
+   01D8 7E                  570 	ld	a, (hl)
+   01D9 CB 6F               571 	bit	5, a
+   01DB 28 05               572 	jr	Z,00109$
+   01DD 01 03 00            573 	ld	bc, #0x0003
+   01E0 18 03               574 	jr	00110$
+   01E2                     575 00109$:
+   01E2 01 00 00            576 	ld	bc, #0x0000
+   01E5                     577 00110$:
+   01E5 21 42 98            578 	ld	hl, #(_bgmap + 0x0042)
+   01E8 71                  579 	ld	(hl), c
+                            580 ;src\main.c:287: bgmap[ 2][ 4] = btn(j_right) ? 3 : 0;
+   01E9 21rA0r00            581 	ld	hl, #_joypad
+   01EC 7E                  582 	ld	a, (hl)
+   01ED CB 67               583 	bit	4, a
+   01EF 28 05               584 	jr	Z,00111$
+   01F1 01 03 00            585 	ld	bc, #0x0003
+   01F4 18 03               586 	jr	00112$
+   01F6                     587 00111$:
+   01F6 01 00 00            588 	ld	bc, #0x0000
+   01F9                     589 00112$:
+   01F9 21 44 98            590 	ld	hl, #(_bgmap + 0x0044)
+   01FC 71                  591 	ld	(hl), c
+                            592 ;src\main.c:288: bgmap[ 3][ 3] = btn(j_down) ? 3 : 0;
+   01FD 21rA0r00            593 	ld	hl, #_joypad
+   0200 7E                  594 	ld	a, (hl)
+   0201 07                  595 	rlca
+   0202 30 05               596 	jr	NC,00113$
+   0204 01 03 00            597 	ld	bc, #0x0003
+   0207 18 03               598 	jr	00114$
+   0209                     599 00113$:
+   0209 01 00 00            600 	ld	bc, #0x0000
+   020C                     601 00114$:
+   020C 21 63 98            602 	ld	hl, #(_bgmap + 0x0063)
+   020F 71                  603 	ld	(hl), c
+                            604 ;src\main.c:290: bgmap[ 4][ 5] = btn(j_select) ? 3 : 0;
+   0210 21rA0r00            605 	ld	hl, #_joypad
+   0213 7E                  606 	ld	a, (hl)
+   0214 CB 57               607 	bit	2, a
+   0216 28 05               608 	jr	Z,00115$
+   0218 01 03 00            609 	ld	bc, #0x0003
+   021B 18 03               610 	jr	00116$
+   021D                     611 00115$:
+   021D 01 00 00            612 	ld	bc, #0x0000
+   0220                     613 00116$:
+   0220 21 85 98            614 	ld	hl, #(_bgmap + 0x0085)
+   0223 71                  615 	ld	(hl), c
+                            616 ;src\main.c:291: bgmap[ 4][ 7] = btn(j_start) ? 3 : 0;
+   0224 21rA0r00            617 	ld	hl, #_joypad
+   0227 7E                  618 	ld	a, (hl)
+   0228 CB 5F               619 	bit	3, a
+   022A 28 05               620 	jr	Z,00117$
+   022C 01 03 00            621 	ld	bc, #0x0003
+   022F 18 03               622 	jr	00118$
+   0231                     623 00117$:
+   0231 01 00 00            624 	ld	bc, #0x0000
+   0234                     625 00118$:
+   0234 21 87 98            626 	ld	hl, #(_bgmap + 0x0087)
+   0237 71                  627 	ld	(hl), c
+                            628 ;src\main.c:293: dma_copy();
+                            629 ;src\main.c:294: }
+   0238 C3r7Er02            630 	jp	_dma_copy
+                            631 ;src\main.c:297: void main(void) {
+                            632 ;	---------------------------------
+                            633 ; Function main
+                            634 ; ---------------------------------
+   023B                     635 _main::
+                            636 ;src\main.c:298: init();
+   023B CDrD6r02            637 	call	_init
+                            638 ;src\main.c:300: while(1) {
+   023E                     639 00102$:
+                            640 ;src\main.c:301: update();
+   023E CDr8Er01            641 	call	_update
+                            642 ;src\main.c:304: halt();
+   0241 76                  643 	halt
+   0242 00                  644 	nop
+                            645 ;src\main.c:305: draw();
+   0243 CDr9Ar01            646 	call	_draw
+   0246 18 F6               647 	jr	00102$
+                            648 ;src\main.c:307: }
+   0248 C9                  649 	ret
+                            650 ;src\main.c:309: void timer_isr(void) __interrupt
+                            651 ;	---------------------------------
+                            652 ; Function timer_isr
+                            653 ; ---------------------------------
+   0249                     654 _timer_isr::
+   0249 FB                  655 	ei
+   024A F5                  656 	push	af
+   024B C5                  657 	push bc
+   024C D5                  658 	push de
+   024D E5                  659 	push hl
+                            660 ;src\main.c:311: __asm__("ld b, b;bgb breakpoint");
+   024E 40                  661 	ld	b, b;bgb breakpoint
+                            662 ;src\main.c:312: }
+   024F E1                  663 	pop	hl
+   0250 D1                  664 	pop de
+   0251 C1                  665 	pop bc
+   0252 F1                  666 	pop af
+   0253 C9                  667 	ret
+                            668 ;src\main.c:314: void vblank_isr(void) __critical __interrupt
+                            669 ;	---------------------------------
+                            670 ; Function vblank_isr
+                            671 ; ---------------------------------
+   0254                     672 _vblank_isr::
+   0254 F5                  673 	push	af
+   0255 C5                  674 	push bc
+   0256 D5                  675 	push de
+   0257 E5                  676 	push hl
+                            677 ;src\main.c:316: poll_joypad();
+   0258 CDr8Ar02            678 	call	_poll_joypad
+                            679 ;src\main.c:318: }
+   025B E1                  680 	pop	hl
+   025C D1                  681 	pop de
+   025D C1                  682 	pop bc
+   025E F1                  683 	pop af
+   025F D9                  684 	reti
+                            685 ;src\main.c:320: void lcd_isr(void) __critical __interrupt
+                            686 ;	---------------------------------
+                            687 ; Function lcd_isr
+                            688 ; ---------------------------------
+   0260                     689 _lcd_isr::
+   0260 F5                  690 	push	af
+   0261 C5                  691 	push bc
+   0262 D5                  692 	push de
+   0263 E5                  693 	push hl
+                            694 ;src\main.c:322: __asm__("ld b, b;bgb breakpoint");
+   0264 40                  695 	ld	b, b;bgb breakpoint
+                            696 ;src\main.c:323: }
+   0265 E1                  697 	pop	hl
+   0266 D1                  698 	pop de
+   0267 C1                  699 	pop bc
+   0268 F1                  700 	pop af
+   0269 D9                  701 	reti
+                            702 ;src\main.c:325: void serial_isr(void) __critical __interrupt
+                            703 ;	---------------------------------
+                            704 ; Function serial_isr
+                            705 ; ---------------------------------
+   026A                     706 _serial_isr::
+   026A F5                  707 	push	af
+   026B C5                  708 	push bc
+   026C D5                  709 	push de
+   026D E5                  710 	push hl
+                            711 ;src\main.c:327: __asm__("ld b, b;bgb breakpoint");
+   026E 40                  712 	ld	b, b;bgb breakpoint
+                            713 ;src\main.c:328: }
+   026F E1                  714 	pop	hl
+   0270 D1                  715 	pop de
+   0271 C1                  716 	pop bc
+   0272 F1                  717 	pop af
+   0273 D9                  718 	reti
+                            719 ;src\main.c:330: void joypad_isr(void) __critical __interrupt
+                            720 ;	---------------------------------
+                            721 ; Function joypad_isr
+                            722 ; ---------------------------------
+   0274                     723 _joypad_isr::
+   0274 F5                  724 	push	af
+   0275 C5                  725 	push bc
+   0276 D5                  726 	push de
+   0277 E5                  727 	push hl
+                            728 ;src\main.c:332: __asm__("ld b, b;bgb breakpoint");
+   0278 40                  729 	ld	b, b;bgb breakpoint
+                            730 ;src\main.c:333: }
+   0279 E1                  731 	pop	hl
+   027A D1                  732 	pop de
+   027B C1                  733 	pop bc
+   027C F1                  734 	pop af
+   027D D9                  735 	reti
+                            736 ;src\main.c:336: void dma_copy(void)
+                            737 ;	---------------------------------
+                            738 ; Function dma_copy
+                            739 ; ---------------------------------
+   027E                     740 _dma_copy::
+                            741 ;src\main.c:348: );
+   027E 21r00r00            742 	ld	hl, #_shadow_oam
+   0281 7C                  743 	ld	a, h
+   0282 E0 46               744 	ldh	(_DMA), a
+   0284 3E 20               745 	ld	a, #0x20
+   0286                     746 		$1:
+   0286 3D                  747 	dec	a
+   0287 20 FD               748 	jr	nz, $1
+                            749 ;src\main.c:349: }
+   0289 C9                  750 	ret
+                            751 ;src\main.c:352: void poll_joypad(void) 
+                            752 ;	---------------------------------
+                            753 ; Function poll_joypad
+                            754 ; ---------------------------------
+   028A                     755 _poll_joypad::
+                            756 ;src\main.c:384: );
+                     FF00   757 	rP1	= #0xFF00
+   028A 3E 20               758 	ld	a, #0x20
+   028C EA 00 FF            759 	ld	(rP1), a
+   028F FA 00 FF            760 	ld	a, (rP1)
+   0292 FA 00 FF            761 	ld	a, (rP1)
+   0295 EArA1r00            762 	ld	(_joypad_dpad_state), a
+   0298 FA 10 00            763 	ld	a, (#0x10)
+   029B EA 00 FF            764 	ld	(rP1), a
+   029E FA 00 FF            765 	ld	a, (rP1)
+   02A1 FA 00 FF            766 	ld	a, (rP1)
+   02A4 FA 00 FF            767 	ld	a, (rP1)
+   02A7 FA 00 FF            768 	ld	a, (rP1)
+   02AA FA 00 FF            769 	ld	a, (rP1)
+   02AD FA 00 FF            770 	ld	a, (rP1)
+   02B0 EArA2r00            771 	ld	(_joypad_btn_state), a
+   02B3 FA 30 00            772 	ld	a, (#0x30)
+   02B6 EA 00 FF            773 	ld	(rP1), a
+                            774 ;src\main.c:387: joypad_btn_state = (~joypad_btn_state) & 0x0F;
+   02B9 21rA2r00            775 	ld	hl, #_joypad_btn_state
+   02BC 7E                  776 	ld	a, (hl)
+   02BD 2F                  777 	cpl
+   02BE E6 0F               778 	and	a, #0x0f
+   02C0 77                  779 	ld	(hl), a
+                            780 ;src\main.c:388: joypad_dpad_state = (~joypad_dpad_state) & 0x0F;
+   02C1 21rA1r00            781 	ld	hl, #_joypad_dpad_state
+   02C4 7E                  782 	ld	a, (hl)
+   02C5 2F                  783 	cpl
+   02C6 E6 0F               784 	and	a, #0x0f
+                            785 ;src\main.c:390: joypad = (joypad_dpad_state << 4) ^ joypad_btn_state;
+   02C8 77                  786 	ld	(hl),a
+   02C9 CB 37               787 	swap	a
+   02CB E6 F0               788 	and	a, #0xf0
+   02CD 21rA2r00            789 	ld	hl, #_joypad_btn_state
+   02D0 AE                  790 	xor	a, (hl)
+   02D1 21rA0r00            791 	ld	hl, #_joypad
+   02D4 77                  792 	ld	(hl), a
+                            793 ;src\main.c:392: }
+   02D5 C9                  794 	ret
+                            795 ;src\main.c:395: void init(void) {
+                            796 ;	---------------------------------
+                            797 ; Function init
+                            798 ; ---------------------------------
+   02D6                     799 _init::
+                            800 ;src\main.c:399: while (LY < 144) {} /* wait until vblank */
+   02D6 F3                  801 	di
+   02D7                     802 00101$:
+   02D7 F0 44               803 	ldh	a, (_LY+0)
+   02D9 D6 90               804 	sub	a, #0x90
+   02DB 38 FA               805 	jr	C,00101$
+   02DD FB                  806 	ei
+                            807 ;src\main.c:401: LCDC = LCDCF_OFF;
+   02DE 3E 00               808 	ld	a, #0x00
+   02E0 E0 40               809 	ldh	(_LCDC+0),a
+                            810 ;src\main.c:403: memcpy(&tiles, &font_tiles, sizeof(font_tiles));
+   02E2 21 40 00            811 	ld	hl, #0x0040
+   02E5 E5                  812 	push	hl
+   02E6 21r3Dr00            813 	ld	hl, #_font_tiles
+   02E9 E5                  814 	push	hl
+   02EA 21 00 90            815 	ld	hl, #_tiles
+   02ED E5                  816 	push	hl
+   02EE CDr00r00            817 	call	___memcpy
+   02F1 E8 06               818 	add	sp, #6
+                            819 ;src\main.c:406: memset(&bgmap, 0, 360);
+   02F3 21 68 01            820 	ld	hl, #0x0168
+   02F6 E5                  821 	push	hl
+   02F7 21 00 00            822 	ld	hl, #0x0000
+   02FA E5                  823 	push	hl
+   02FB 21 00 98            824 	ld	hl, #_bgmap
+   02FE E5                  825 	push	hl
+   02FF CDr00r00            826 	call	_memset
+   0302 E8 06               827 	add	sp, #6
+                            828 ;src\main.c:409: memset(&oam, 0x00, sizeof(oam)); 
+   0304 21 A0 00            829 	ld	hl, #0x00a0
+   0307 E5                  830 	push	hl
+   0308 2E 00               831 	ld	l, #0x00
+   030A E5                  832 	push	hl
+   030B 21 00 FE            833 	ld	hl, #_oam
+   030E E5                  834 	push	hl
+   030F CDr00r00            835 	call	_memset
+   0312 E8 06               836 	add	sp, #6
+                            837 ;src\main.c:410: memset(&shadow_oam, 0x19, sizeof(oam)); 
+   0314 21 A0 00            838 	ld	hl, #0x00a0
+   0317 E5                  839 	push	hl
+   0318 2E 19               840 	ld	l, #0x19
+   031A E5                  841 	push	hl
+   031B 21r00r00            842 	ld	hl, #_shadow_oam
+   031E E5                  843 	push	hl
+   031F CDr00r00            844 	call	_memset
+   0322 E8 06               845 	add	sp, #6
+                            846 ;src\main.c:419: shadow_oam[0].x     = 0x30; 
+   0324 21r00r00            847 	ld	hl, #_shadow_oam
+   0327 36 30               848 	ld	(hl), #0x30
+                            849 ;src\main.c:420: shadow_oam[0].y     = 0x40;
+   0329 21r01r00            850 	ld	hl, #(_shadow_oam + 0x0001)
+   032C 36 40               851 	ld	(hl), #0x40
+                            852 ;src\main.c:421: shadow_oam[0].tile  = 0x19;
+   032E 21r02r00            853 	ld	hl, #(_shadow_oam + 0x0002)
+   0331 36 19               854 	ld	(hl), #0x19
+                            855 ;src\main.c:422: shadow_oam[0].flags = OAMF_PAL0;
+   0333 21r03r00            856 	ld	hl, #(_shadow_oam + 0x0003)
+   0336 36 00               857 	ld	(hl), #0x00
+                            858 ;src\main.c:424: shadow_oam[1].x     = 0x50; 
+   0338 21r04r00            859 	ld	hl, #(_shadow_oam + 0x0004)
+   033B 36 50               860 	ld	(hl), #0x50
+                            861 ;src\main.c:425: shadow_oam[1].y     = 0x60;
+   033D 21r05r00            862 	ld	hl, #(_shadow_oam + 0x0005)
+   0340 36 60               863 	ld	(hl), #0x60
+                            864 ;src\main.c:426: shadow_oam[1].tile  = 0x19;
+   0342 21r06r00            865 	ld	hl, #(_shadow_oam + 0x0006)
+   0345 36 19               866 	ld	(hl), #0x19
+                            867 ;src\main.c:427: shadow_oam[1].flags = OAMF_PAL1 | OAMF_YFLIP;
+   0347 21r07r00            868 	ld	hl, #(_shadow_oam + 0x0007)
+   034A 36 50               869 	ld	(hl), #0x50
+                            870 ;src\main.c:430: BGP = 0b11100100;
+   034C 3E E4               871 	ld	a, #0xe4
+   034E E0 47               872 	ldh	(_BGP+0),a
+                            873 ;src\main.c:431: OBP0 = 0b11100100;
+   0350 3E E4               874 	ld	a, #0xe4
+   0352 E0 48               875 	ldh	(_OBP0+0),a
+                            876 ;src\main.c:432: OBP1 = 0b11100100;
+   0354 3E E4               877 	ld	a, #0xe4
+   0356 E0 49               878 	ldh	(_OBP1+0),a
+                            879 ;src\main.c:434: SCY = 0;
+   0358 3E 00               880 	ld	a, #0x00
+   035A E0 42               881 	ldh	(_SCY+0),a
+                            882 ;src\main.c:435: SCX = 0;
+   035C 3E 00               883 	ld	a, #0x00
+   035E E0 43               884 	ldh	(_SCX+0),a
+                            885 ;src\main.c:437: NR52 = 0;
+   0360 3E 00               886 	ld	a, #0x00
+   0362 E0 26               887 	ldh	(_NR52+0),a
+                            888 ;src\main.c:443: LCDCF_OBJON;
+   0364 3E 83               889 	ld	a, #0x83
+   0366 E0 40               890 	ldh	(_LCDC+0),a
+                            891 ;src\main.c:447: __asm__("ei");
+   0368 FB                  892 	ei
+                            893 ;src\main.c:448: interrupt_enable = IEF_VBLANK;
+   0369 21r3Cr00            894 	ld	hl, #_IEF_VBLANK
+   036C 7E                  895 	ld	a, (hl)
+   036D E0 FF               896 	ldh	(_interrupt_enable+0),a
+                            897 ;src\main.c:449: }
+   036F C9                  898 	ret
+                            899 	.area _CODE
+                            900 	.area _CABS (ABS)
