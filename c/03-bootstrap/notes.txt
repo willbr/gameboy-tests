@@ -1,0 +1,24 @@
+breakpoints
+
+debug messages
+    https://bgb.bircd.org/manual.html
+
+
+__at (0x80)
+__far
+__critical
+__interrupt
+__banked
+__sfr
+    special function register
+
+-bo
+-ba
+
+--peep-file
+--no-std-crt0
+--data-loc
+
+devkitSMS lib files
+--constseg
+
