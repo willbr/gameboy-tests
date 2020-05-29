@@ -31,7 +31,7 @@ $guard_name = "$($basename.ToUpper())_H"
     echo ""
     echo "const unsigned char $basename[] = {"
 
-    $bytes = ((Get-Content $in_file | Format-Hex).Bytes | % { "0x{0:X2}" -f $_ })
+    $bytes = ((Get-Content -Encoding byte $in_file | Format-Hex).Bytes | % { "0x{0:X2}" -f $_ })
 
     $lines = New-Object System.Collections.Generic.List[System.Object]
 
