@@ -29,7 +29,7 @@ $guard_name = "$($basename.ToUpper())_H"
     echo "#ifndef $guard_name"
     echo "#define $guard_name"
     echo ""
-    echo "const unsigned char $basename[] = {"
+    echo "const unsigned char $array_name[] = {"
 
     $bytes = ((Get-Content -Encoding byte $in_file | Format-Hex).Bytes | % { "0x{0:X2}" -f $_ })
 
