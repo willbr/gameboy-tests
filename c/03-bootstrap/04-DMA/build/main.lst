@@ -93,13 +93,13 @@
                              93 ;src\main.c:247: static u8 i = 123;
    0000 21rA3r00             94 	ld	hl, #_random8_i_65536_32
    0003 36 7B                95 	ld	(hl), #0x7b
-                             96 ;src\main.c:199: u8 joypad = 0;
+                             96 ;src\main.c:199: volatile u8 joypad = 0;
    0005 21rA0r00             97 	ld	hl, #_joypad
    0008 36 00                98 	ld	(hl), #0x00
-                             99 ;src\main.c:200: u8 joypad_dpad_state = 0;
+                             99 ;src\main.c:200: volatile u8 joypad_dpad_state = 0;
    000A 21rA1r00            100 	ld	hl, #_joypad_dpad_state
    000D 36 00               101 	ld	(hl), #0x00
-                            102 ;src\main.c:201: u8 joypad_btn_state = 0;
+                            102 ;src\main.c:201: volatile u8 joypad_btn_state = 0;
    000F 21rA2r00            103 	ld	hl, #_joypad_btn_state
    0012 36 00               104 	ld	(hl), #0x00
                             105 ;--------------------------------------------------------
@@ -634,7 +634,7 @@
                             634 ; ---------------------------------
    023B                     635 _main::
                             636 ;src\main.c:298: init();
-   023B CDrD6r02            637 	call	_init
+   023B CDrD7r02            637 	call	_init
                             638 ;src\main.c:300: while(1) {
    023E                     639 00102$:
                             640 ;src\main.c:301: update();
@@ -782,119 +782,120 @@
    02C4 7E                  782 	ld	a, (hl)
    02C5 2F                  783 	cpl
    02C6 E6 0F               784 	and	a, #0x0f
-                            785 ;src\main.c:390: joypad = (joypad_dpad_state << 4) ^ joypad_btn_state;
-   02C8 77                  786 	ld	(hl),a
-   02C9 CB 37               787 	swap	a
-   02CB E6 F0               788 	and	a, #0xf0
-   02CD 21rA2r00            789 	ld	hl, #_joypad_btn_state
-   02D0 AE                  790 	xor	a, (hl)
-   02D1 21rA0r00            791 	ld	hl, #_joypad
-   02D4 77                  792 	ld	(hl), a
-                            793 ;src\main.c:392: }
-   02D5 C9                  794 	ret
-                            795 ;src\main.c:395: void init(void) {
-                            796 ;	---------------------------------
-                            797 ; Function init
-                            798 ; ---------------------------------
-   02D6                     799 _init::
-                            800 ;src\main.c:399: while (LY < 144) {} /* wait until vblank */
-   02D6 F3                  801 	di
-   02D7                     802 00101$:
-   02D7 F0 44               803 	ldh	a, (_LY+0)
-   02D9 D6 90               804 	sub	a, #0x90
-   02DB 38 FA               805 	jr	C,00101$
-   02DD FB                  806 	ei
-                            807 ;src\main.c:401: LCDC = LCDCF_OFF;
-   02DE 3E 00               808 	ld	a, #0x00
-   02E0 E0 40               809 	ldh	(_LCDC+0),a
-                            810 ;src\main.c:403: memcpy(&tiles, &font_tiles, sizeof(font_tiles));
-   02E2 21 40 00            811 	ld	hl, #0x0040
-   02E5 E5                  812 	push	hl
-   02E6 21r3Dr00            813 	ld	hl, #_font_tiles
-   02E9 E5                  814 	push	hl
-   02EA 21 00 90            815 	ld	hl, #_tiles
-   02ED E5                  816 	push	hl
-   02EE CDr00r00            817 	call	___memcpy
-   02F1 E8 06               818 	add	sp, #6
-                            819 ;src\main.c:406: memset(&bgmap, 0, 360);
-   02F3 21 68 01            820 	ld	hl, #0x0168
-   02F6 E5                  821 	push	hl
-   02F7 21 00 00            822 	ld	hl, #0x0000
-   02FA E5                  823 	push	hl
-   02FB 21 00 98            824 	ld	hl, #_bgmap
-   02FE E5                  825 	push	hl
-   02FF CDr00r00            826 	call	_memset
-   0302 E8 06               827 	add	sp, #6
-                            828 ;src\main.c:409: memset(&oam, 0x00, sizeof(oam)); 
-   0304 21 A0 00            829 	ld	hl, #0x00a0
-   0307 E5                  830 	push	hl
-   0308 2E 00               831 	ld	l, #0x00
-   030A E5                  832 	push	hl
-   030B 21 00 FE            833 	ld	hl, #_oam
-   030E E5                  834 	push	hl
-   030F CDr00r00            835 	call	_memset
-   0312 E8 06               836 	add	sp, #6
-                            837 ;src\main.c:410: memset(&shadow_oam, 0x19, sizeof(oam)); 
-   0314 21 A0 00            838 	ld	hl, #0x00a0
-   0317 E5                  839 	push	hl
-   0318 2E 19               840 	ld	l, #0x19
-   031A E5                  841 	push	hl
-   031B 21r00r00            842 	ld	hl, #_shadow_oam
-   031E E5                  843 	push	hl
-   031F CDr00r00            844 	call	_memset
-   0322 E8 06               845 	add	sp, #6
-                            846 ;src\main.c:419: shadow_oam[0].x     = 0x30; 
-   0324 21r00r00            847 	ld	hl, #_shadow_oam
-   0327 36 30               848 	ld	(hl), #0x30
-                            849 ;src\main.c:420: shadow_oam[0].y     = 0x40;
-   0329 21r01r00            850 	ld	hl, #(_shadow_oam + 0x0001)
-   032C 36 40               851 	ld	(hl), #0x40
-                            852 ;src\main.c:421: shadow_oam[0].tile  = 0x19;
-   032E 21r02r00            853 	ld	hl, #(_shadow_oam + 0x0002)
-   0331 36 19               854 	ld	(hl), #0x19
-                            855 ;src\main.c:422: shadow_oam[0].flags = OAMF_PAL0;
-   0333 21r03r00            856 	ld	hl, #(_shadow_oam + 0x0003)
-   0336 36 00               857 	ld	(hl), #0x00
-                            858 ;src\main.c:424: shadow_oam[1].x     = 0x50; 
-   0338 21r04r00            859 	ld	hl, #(_shadow_oam + 0x0004)
-   033B 36 50               860 	ld	(hl), #0x50
-                            861 ;src\main.c:425: shadow_oam[1].y     = 0x60;
-   033D 21r05r00            862 	ld	hl, #(_shadow_oam + 0x0005)
-   0340 36 60               863 	ld	(hl), #0x60
-                            864 ;src\main.c:426: shadow_oam[1].tile  = 0x19;
-   0342 21r06r00            865 	ld	hl, #(_shadow_oam + 0x0006)
-   0345 36 19               866 	ld	(hl), #0x19
-                            867 ;src\main.c:427: shadow_oam[1].flags = OAMF_PAL1 | OAMF_YFLIP;
-   0347 21r07r00            868 	ld	hl, #(_shadow_oam + 0x0007)
-   034A 36 50               869 	ld	(hl), #0x50
-                            870 ;src\main.c:430: BGP = 0b11100100;
-   034C 3E E4               871 	ld	a, #0xe4
-   034E E0 47               872 	ldh	(_BGP+0),a
-                            873 ;src\main.c:431: OBP0 = 0b11100100;
-   0350 3E E4               874 	ld	a, #0xe4
-   0352 E0 48               875 	ldh	(_OBP0+0),a
-                            876 ;src\main.c:432: OBP1 = 0b11100100;
-   0354 3E E4               877 	ld	a, #0xe4
-   0356 E0 49               878 	ldh	(_OBP1+0),a
-                            879 ;src\main.c:434: SCY = 0;
-   0358 3E 00               880 	ld	a, #0x00
-   035A E0 42               881 	ldh	(_SCY+0),a
-                            882 ;src\main.c:435: SCX = 0;
-   035C 3E 00               883 	ld	a, #0x00
-   035E E0 43               884 	ldh	(_SCX+0),a
-                            885 ;src\main.c:437: NR52 = 0;
-   0360 3E 00               886 	ld	a, #0x00
-   0362 E0 26               887 	ldh	(_NR52+0),a
-                            888 ;src\main.c:443: LCDCF_OBJON;
-   0364 3E 83               889 	ld	a, #0x83
-   0366 E0 40               890 	ldh	(_LCDC+0),a
-                            891 ;src\main.c:447: __asm__("ei");
-   0368 FB                  892 	ei
-                            893 ;src\main.c:448: interrupt_enable = IEF_VBLANK;
-   0369 21r3Cr00            894 	ld	hl, #_IEF_VBLANK
-   036C 7E                  895 	ld	a, (hl)
-   036D E0 FF               896 	ldh	(_interrupt_enable+0),a
-                            897 ;src\main.c:449: }
-   036F C9                  898 	ret
-                            899 	.area _CODE
-                            900 	.area _CABS (ABS)
+   02C8 77                  785 	ld	(hl), a
+                            786 ;src\main.c:390: joypad = (joypad_dpad_state << 4) ^ joypad_btn_state;
+   02C9 7E                  787 	ld	a, (hl)
+   02CA CB 37               788 	swap	a
+   02CC E6 F0               789 	and	a, #0xf0
+   02CE 21rA2r00            790 	ld	hl, #_joypad_btn_state
+   02D1 AE                  791 	xor	a, (hl)
+   02D2 21rA0r00            792 	ld	hl, #_joypad
+   02D5 77                  793 	ld	(hl), a
+                            794 ;src\main.c:392: }
+   02D6 C9                  795 	ret
+                            796 ;src\main.c:395: void init(void) {
+                            797 ;	---------------------------------
+                            798 ; Function init
+                            799 ; ---------------------------------
+   02D7                     800 _init::
+                            801 ;src\main.c:399: while (LY < 144) {} /* wait until vblank */
+   02D7 F3                  802 	di
+   02D8                     803 00101$:
+   02D8 F0 44               804 	ldh	a, (_LY+0)
+   02DA D6 90               805 	sub	a, #0x90
+   02DC 38 FA               806 	jr	C,00101$
+   02DE FB                  807 	ei
+                            808 ;src\main.c:401: LCDC = LCDCF_OFF;
+   02DF 3E 00               809 	ld	a, #0x00
+   02E1 E0 40               810 	ldh	(_LCDC+0),a
+                            811 ;src\main.c:403: memcpy(&tiles, &font_tiles, sizeof(font_tiles));
+   02E3 21 40 00            812 	ld	hl, #0x0040
+   02E6 E5                  813 	push	hl
+   02E7 21r3Dr00            814 	ld	hl, #_font_tiles
+   02EA E5                  815 	push	hl
+   02EB 21 00 90            816 	ld	hl, #_tiles
+   02EE E5                  817 	push	hl
+   02EF CDr00r00            818 	call	___memcpy
+   02F2 E8 06               819 	add	sp, #6
+                            820 ;src\main.c:406: memset(&bgmap, 0, 360);
+   02F4 21 68 01            821 	ld	hl, #0x0168
+   02F7 E5                  822 	push	hl
+   02F8 21 00 00            823 	ld	hl, #0x0000
+   02FB E5                  824 	push	hl
+   02FC 21 00 98            825 	ld	hl, #_bgmap
+   02FF E5                  826 	push	hl
+   0300 CDr00r00            827 	call	_memset
+   0303 E8 06               828 	add	sp, #6
+                            829 ;src\main.c:409: memset(&oam, 0x00, sizeof(oam)); 
+   0305 21 A0 00            830 	ld	hl, #0x00a0
+   0308 E5                  831 	push	hl
+   0309 2E 00               832 	ld	l, #0x00
+   030B E5                  833 	push	hl
+   030C 21 00 FE            834 	ld	hl, #_oam
+   030F E5                  835 	push	hl
+   0310 CDr00r00            836 	call	_memset
+   0313 E8 06               837 	add	sp, #6
+                            838 ;src\main.c:410: memset(&shadow_oam, 0x19, sizeof(oam)); 
+   0315 21 A0 00            839 	ld	hl, #0x00a0
+   0318 E5                  840 	push	hl
+   0319 2E 19               841 	ld	l, #0x19
+   031B E5                  842 	push	hl
+   031C 21r00r00            843 	ld	hl, #_shadow_oam
+   031F E5                  844 	push	hl
+   0320 CDr00r00            845 	call	_memset
+   0323 E8 06               846 	add	sp, #6
+                            847 ;src\main.c:419: shadow_oam[0].x     = 0x30; 
+   0325 21r00r00            848 	ld	hl, #_shadow_oam
+   0328 36 30               849 	ld	(hl), #0x30
+                            850 ;src\main.c:420: shadow_oam[0].y     = 0x40;
+   032A 21r01r00            851 	ld	hl, #(_shadow_oam + 0x0001)
+   032D 36 40               852 	ld	(hl), #0x40
+                            853 ;src\main.c:421: shadow_oam[0].tile  = 0x19;
+   032F 21r02r00            854 	ld	hl, #(_shadow_oam + 0x0002)
+   0332 36 19               855 	ld	(hl), #0x19
+                            856 ;src\main.c:422: shadow_oam[0].flags = OAMF_PAL0;
+   0334 21r03r00            857 	ld	hl, #(_shadow_oam + 0x0003)
+   0337 36 00               858 	ld	(hl), #0x00
+                            859 ;src\main.c:424: shadow_oam[1].x     = 0x50; 
+   0339 21r04r00            860 	ld	hl, #(_shadow_oam + 0x0004)
+   033C 36 50               861 	ld	(hl), #0x50
+                            862 ;src\main.c:425: shadow_oam[1].y     = 0x60;
+   033E 21r05r00            863 	ld	hl, #(_shadow_oam + 0x0005)
+   0341 36 60               864 	ld	(hl), #0x60
+                            865 ;src\main.c:426: shadow_oam[1].tile  = 0x19;
+   0343 21r06r00            866 	ld	hl, #(_shadow_oam + 0x0006)
+   0346 36 19               867 	ld	(hl), #0x19
+                            868 ;src\main.c:427: shadow_oam[1].flags = OAMF_PAL1 | OAMF_YFLIP;
+   0348 21r07r00            869 	ld	hl, #(_shadow_oam + 0x0007)
+   034B 36 50               870 	ld	(hl), #0x50
+                            871 ;src\main.c:430: BGP = 0b11100100;
+   034D 3E E4               872 	ld	a, #0xe4
+   034F E0 47               873 	ldh	(_BGP+0),a
+                            874 ;src\main.c:431: OBP0 = 0b11100100;
+   0351 3E E4               875 	ld	a, #0xe4
+   0353 E0 48               876 	ldh	(_OBP0+0),a
+                            877 ;src\main.c:432: OBP1 = 0b11100100;
+   0355 3E E4               878 	ld	a, #0xe4
+   0357 E0 49               879 	ldh	(_OBP1+0),a
+                            880 ;src\main.c:434: SCY = 0;
+   0359 3E 00               881 	ld	a, #0x00
+   035B E0 42               882 	ldh	(_SCY+0),a
+                            883 ;src\main.c:435: SCX = 0;
+   035D 3E 00               884 	ld	a, #0x00
+   035F E0 43               885 	ldh	(_SCX+0),a
+                            886 ;src\main.c:437: NR52 = 0;
+   0361 3E 00               887 	ld	a, #0x00
+   0363 E0 26               888 	ldh	(_NR52+0),a
+                            889 ;src\main.c:443: LCDCF_OBJON;
+   0365 3E 83               890 	ld	a, #0x83
+   0367 E0 40               891 	ldh	(_LCDC+0),a
+                            892 ;src\main.c:447: __asm__("ei");
+   0369 FB                  893 	ei
+                            894 ;src\main.c:448: interrupt_enable = IEF_VBLANK;
+   036A 21r3Cr00            895 	ld	hl, #_IEF_VBLANK
+   036D 7E                  896 	ld	a, (hl)
+   036E E0 FF               897 	ldh	(_interrupt_enable+0),a
+                            898 ;src\main.c:449: }
+   0370 C9                  899 	ret
+                            900 	.area _CODE
+                            901 	.area _CABS (ABS)

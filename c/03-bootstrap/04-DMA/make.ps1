@@ -1,6 +1,7 @@
 $cflags="--verbose -mgbz80 --Werror --std-sdcc99".Split()
 $asmflags="-plosgffwy".Split()
 
+echo "sdcc $cflags -S --asm=rgbds -o build\main.rgbds.asm src\main.c"
 sdcc $cflags -S --asm=rgbds -o build\main.rgbds.asm src\main.c
 dir .\build\*.rgbds.asm | ForEach-Object {
     Get-Content $_.FullName | select-string -Pattern "GLOBAL", "\d+\$\d+" -NotMatch | Set-Content ($_.FullName + ".tidy.asm")

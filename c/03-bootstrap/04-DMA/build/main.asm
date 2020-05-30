@@ -93,13 +93,13 @@ _update_j_65536_34:
 ;src\main.c:247: static u8 i = 123;
 	ld	hl, #_random8_i_65536_32
 	ld	(hl), #0x7b
-;src\main.c:199: u8 joypad = 0;
+;src\main.c:199: volatile u8 joypad = 0;
 	ld	hl, #_joypad
 	ld	(hl), #0x00
-;src\main.c:200: u8 joypad_dpad_state = 0;
+;src\main.c:200: volatile u8 joypad_dpad_state = 0;
 	ld	hl, #_joypad_dpad_state
 	ld	(hl), #0x00
-;src\main.c:201: u8 joypad_btn_state = 0;
+;src\main.c:201: volatile u8 joypad_btn_state = 0;
 	ld	hl, #_joypad_btn_state
 	ld	(hl), #0x00
 ;--------------------------------------------------------
@@ -782,8 +782,9 @@ _poll_joypad::
 	ld	a, (hl)
 	cpl
 	and	a, #0x0f
+	ld	(hl), a
 ;src\main.c:390: joypad = (joypad_dpad_state << 4) ^ joypad_btn_state;
-	ld	(hl),a
+	ld	a, (hl)
 	swap	a
 	and	a, #0xf0
 	ld	hl, #_joypad_btn_state

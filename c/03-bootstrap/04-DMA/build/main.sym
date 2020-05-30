@@ -32,7 +32,7 @@ Symbol Table
   0 _dma_copy                                                      027E GR
   0 _draw                                                          019A GR
   0 _font_tiles                                                    003D GR
-  0 _init                                                          02D6 GR
+  0 _init                                                          02D7 GR
     _interrupt_enable                                           =  00FF 
     _interrupt_flag                                             =  000F 
   1 _joypad                                                        00A0 GR
@@ -70,7 +70,7 @@ Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  370   flags    0
+   0 _CODE                                      size  371   flags    0
    1 _DATA                                      size   A6   flags    0
    2 _DABS                                      size    0   flags    8
    3 _HOME                                      size    0   flags    0
