@@ -3,7 +3,6 @@ Hexadecimal [16-Bits]
 
 Symbol Table
 
-  0 $1                                                             0008 R
     .__.$$$.                                                    =  2710 L
     .__.ABS.                                                    =  0000 G
     .__.CPU.                                                    =  0000 L
@@ -11,11 +10,11 @@ Symbol Table
     _BGP                                                        =  0047 
     _DMA                                                        =  0046 
     _HRAM                                                       =  FF80 G
-  0 _IEF_HILO                                                      080C GR
-  0 _IEF_LCDC                                                      080F GR
-  0 _IEF_SERIAL                                                    080D GR
-  0 _IEF_TIMER                                                     080E GR
-  0 _IEF_VBLANK                                                    0810 GR
+  0 _IEF_HILO                                                      0801 GR
+  0 _IEF_LCDC                                                      0804 GR
+  0 _IEF_SERIAL                                                    0802 GR
+  0 _IEF_TIMER                                                     0803 GR
+  0 _IEF_VBLANK                                                    0805 GR
     _LCDC                                                       =  0040 
     _LY                                                         =  0044 
     _LYC                                                        =  0045 
@@ -27,35 +26,36 @@ Symbol Table
     _SCY                                                        =  0042 
     _STAT                                                       =  0041 
     ___memcpy                                                      **** GX
-  0 ___str_8                                                       09BB R
+  0 ___str_8                                                       09CF R
     _bgmap                                                      =  9800 G
-  0 _char_map                                                      000C GR
-  1 _cursor                                                        00A3 GR
+  0 _char_map                                                      0001 GR
+  1 _cursor                                                        00A4 GR
   0 _dma_copy                                                      0000 GR
-  0 _draw                                                          0A3D GR
-  0 _init                                                          097B GR
+  0 _draw                                                          0A51 GR
+  0 _init                                                          0980 GR
     _interrupt_enable                                           =  00FF 
     _interrupt_flag                                             =  000F 
-  1 _joypad                                                        00A0 GR
-  1 _joypad_btn_state                                              00A2 GR
-  1 _joypad_dpad_state                                             00A1 GR
-  0 _joypad_isr                                                    0867 GR
-  0 _lcd_isr                                                       0863 GR
-  0 _main                                                          0869 GR
+  1 _joypad                                                        00A1 GR
+  1 _joypad_btn_state                                              00A3 GR
+  1 _joypad_dpad_state                                             00A2 GR
+  0 _joypad_isr                                                    0869 GR
+  0 _lcd_isr                                                       0865 GR
+  0 _main                                                          086B GR
     _memset                                                        **** GX
     _oam                                                        =  FE00 G
     _p1_joypad                                                  =  0000 
-  0 _poll_joypad                                                   0811 GR
-  0 _putchar                                                       08E3 GR
-  0 _puts                                                          08CF GR
-  0 _serial_isr                                                    0865 GR
+  0 _poll_joypad                                                   0806 GR
+  1 _previous_joypad                                               00A0 GR
+  0 _putchar                                                       08E8 GR
+  0 _puts                                                          08D4 GR
+  0 _serial_isr                                                    0867 GR
   1 _shadow_oam                                                    0000 GR
-  0 _system_init                                                   087A GR
+  0 _system_init                                                   087F GR
     _tiles                                                      =  9000 G
-  0 _timer_isr                                                     085E GR
-  0 _update                                                        0A26 GR
-  1 _update_step_65536_69                                          00A5 R
-  0 _vblank_isr                                                    0860 GR
+  0 _timer_isr                                                     0860 GR
+  0 _update                                                        0A3A GR
+  1 _update_step_65536_70                                          00A6 R
+  0 _vblank_isr                                                    0862 GR
     rP1                                                         =  FF00 
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy Z80-like CPU), page 2.
@@ -63,11 +63,11 @@ Hexadecimal [16-Bits]
 
 Area Table
 
-   0 _CODE                                      size  A40   flags    0
-   1 _DATA                                      size   A6   flags    0
+   0 _CODE                                      size  AF2   flags    0
+   1 _DATA                                      size   A7   flags    0
    2 _DABS                                      size    0   flags    8
    3 _HOME                                      size    0   flags    0
-   4 _GSINIT                                    size   14   flags    0
+   4 _GSINIT                                    size   19   flags    0
    5 _GSFINAL                                   size    0   flags    0
    6 _CABS                                      size    0   flags    8
 

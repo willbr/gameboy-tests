@@ -63,6 +63,9 @@ void init(void)
     memset(&tiles, 0, sizeof(tiles));
     memcpy(&tiles, &char_map, sizeof(char_map));
 
+    oam[0].x = 40;
+    oam[0].y = 40;
+    oam[0].tile = 0x19;
     /*const u8 charactr_size = 16;*/
     /*memcpy(&tiles, &char_map + (charactr_size * 8), charactr_size);*/
 
@@ -99,12 +102,42 @@ void update(void)
 
 void draw(void)
 {
+    if (btn(j_left)) {
+        oam[0].x -= 1;
+    }
+
+    if (btn(j_right)) {
+        oam[0].x += 1;
+    }
+
+    if (btn(j_up)) {
+        oam[0].y -= 1;
+    }
+
+    if (btn(j_down)) {
+        oam[0].y += 1;
+    }
+
+    if (btnp(j_left)) {
+        oam[0].x_flip -= 1;
+    }
+
+    if (btnp(j_right)) {
+        oam[0].x_flip += 1;
+    }
+
+    if (btnp(j_up)) {
+        oam[0].y_flip -= 1;
+    }
+
+    if (btnp(j_down)) {
+        oam[0].y_flip += 1;
+    }
+
     /*bgmap[ 1][ 3] = btn(j_up) ? 3 : 0;*/
     /*bgmap[ 2][ 2] = btn(j_left)  ? 3 : 0;*/
     /*bgmap[ 2][ 4] = btn(j_right) ? 3 : 0;*/
     /*bgmap[ 3][ 3] = btn(j_down) ? 3 : 0;*/
-
-    dma_copy();
 }
 
 

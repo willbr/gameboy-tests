@@ -4,57 +4,63 @@
 
 ## step 1
 
-btn
-btnp
+[x] btn
+[x] btnp
+    use a circle buffer of bitfields for each button?
+    0b00000000
+    a bit for each of the last 7 frames
 
-memcpy
-memset
+[x] memcpy
+[x] memset
 
-mset
-mget
-
-spr
+[x] spr
+use bit fields?
+https://www.tutorialspoint.com/cprogramming/c_bit_fields.htm
+https://www.geeksforgeeks.org/bit-fields-c/
 
 
 ## step 2
-cls
+[ ] cls
 
-pset
-pget
+[ ] pset
+[ ] pget
 
 
 ## step 3
-fget
-fset
+[ ] fget
+[ ] fset
 
 
 ## step 4
-print
-color
-cursor
+[ ] print
+[ ] color
+[ ] cursor
 
 
 ## step 5
-rnd
-srand
-min
-mid
-max
+[ ] rnd
+[ ] srand
+[ ] min
+[ ] mid
+[ ] max
 
 ## step 6
-hline
-rect
-rectfill
+[ ] hline
+[ ] rect
+[ ] rectfill
 
-line
+[ ] line
 
 ## step 7
-fillp
+[ ] fillp
 
 ## step 8
-peek
-poke
+[ ] fix dma
 
-peek2
-poke2
+## step 9
+[ ] peek
+[ ] poke
+
+[ ] peek2
+[ ] poke2
 

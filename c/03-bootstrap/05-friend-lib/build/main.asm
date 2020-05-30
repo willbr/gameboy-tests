@@ -20,6 +20,7 @@
 	.globl _joypad_btn_state
 	.globl _joypad_dpad_state
 	.globl _joypad
+	.globl _previous_joypad
 	.globl _shadow_oam
 	.globl _oam
 	.globl _HRAM
@@ -68,6 +69,8 @@ _HRAM	=	0xff80
 _oam	=	0xfe00
 _shadow_oam::
 	.ds 160
+_previous_joypad::
+	.ds 1
 _joypad::
 	.ds 1
 _joypad_dpad_state::
@@ -76,7 +79,7 @@ _joypad_btn_state::
 	.ds 1
 _cursor::
 	.ds 2
-_update_step_65536_69:
+_update_step_65536_70:
 	.ds 1
 ;--------------------------------------------------------
 ; absolute external ram data
@@ -89,16 +92,19 @@ _update_step_65536_69:
 	.area _GSINIT
 	.area _GSFINAL
 	.area _GSINIT
-;src\main.c:88: static u8 step = 0;
-	ld	hl, #_update_step_65536_69
+;src\main.c:91: static u8 step = 0;
+	ld	hl, #_update_step_65536_70
 	ld	(hl), #0x00
-;src\/gameboy.h:128: volatile u8 joypad = 0;
+;src\/gameboy.h:136: volatile u8 previous_joypad = 0;
+	ld	hl, #_previous_joypad
+	ld	(hl), #0x00
+;src\/gameboy.h:137: volatile u8 joypad = 0;
 	ld	hl, #_joypad
 	ld	(hl), #0x00
-;src\/gameboy.h:129: volatile u8 joypad_dpad_state = 0;
+;src\/gameboy.h:138: volatile u8 joypad_dpad_state = 0;
 	ld	hl, #_joypad_dpad_state
 	ld	(hl), #0x00
-;src\/gameboy.h:130: volatile u8 joypad_btn_state = 0;
+;src\/gameboy.h:139: volatile u8 joypad_btn_state = 0;
 	ld	hl, #_joypad_btn_state
 	ld	(hl), #0x00
 ;--------------------------------------------------------
@@ -110,20 +116,12 @@ _update_step_65536_69:
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;src\/gameboy.h:135: void dma_copy(void)
+;src\/gameboy.h:144: void dma_copy(void)
 ;	---------------------------------
 ; Function dma_copy
 ; ---------------------------------
 _dma_copy::
-;src\/gameboy.h:147: );
-	ld	hl, #_shadow_oam
-	ld	a, h
-	ldh	(_DMA), a
-	ld	a, #0x20
-		$1:
-	dec	a
-	jr	nz, $1
-;src\/gameboy.h:148: }
+;src\/gameboy.h:157: }
 	ret
 _char_map:
 	.db #0x00	; 0
@@ -2184,12 +2182,12 @@ _IEF_LCDC:
 	.db #0x02	; 2
 _IEF_VBLANK:
 	.db #0x01	; 1
-;src\/gameboy.h:151: void poll_joypad(void) 
+;src\/gameboy.h:160: void poll_joypad(void) 
 ;	---------------------------------
 ; Function poll_joypad
 ; ---------------------------------
 _poll_joypad::
-;src\/gameboy.h:183: );
+;src\/gameboy.h:192: );
 	rP1	= #0xFF00
 	ld	a, #0x20
 	ld	(rP1), a
@@ -2207,19 +2205,27 @@ _poll_joypad::
 	ld	(_joypad_btn_state), a
 	ld	a, (#0x30)
 	ld	(rP1), a
-;src\/gameboy.h:186: joypad_btn_state = (~joypad_btn_state) & 0x0F;
+;src\/gameboy.h:194: joypad_btn_state = (~joypad_btn_state) & 0x0F;
 	ld	hl, #_joypad_btn_state
 	ld	a, (hl)
 	cpl
 	and	a, #0x0f
 	ld	(hl), a
-;src\/gameboy.h:187: joypad_dpad_state = (~joypad_dpad_state) & 0x0F;
+;src\/gameboy.h:195: joypad_dpad_state = (~joypad_dpad_state) & 0x0F;
 	ld	hl, #_joypad_dpad_state
 	ld	a, (hl)
 	cpl
 	and	a, #0x0f
 	ld	(hl), a
-;src\/gameboy.h:189: joypad = (joypad_dpad_state << 4) ^ joypad_btn_state;
+;src\/gameboy.h:197: previous_joypad = joypad;
+	push	hl
+	ld	hl, #_joypad
+	ld	a, (hl)
+	ld	hl, #_previous_joypad
+	ld	(hl), a
+	pop	hl
+;src\/gameboy.h:199: joypad = (joypad_dpad_state << 4) ^ joypad_btn_state;
+	ld	hl, #_joypad_dpad_state
 	ld	a, (hl)
 	swap	a
 	and	a, #0xf0
@@ -2227,57 +2233,57 @@ _poll_joypad::
 	xor	a, (hl)
 	ld	hl, #_joypad
 	ld	(hl), a
-;src\/gameboy.h:191: }
+;src\/gameboy.h:200: }
 	ret
-;src\/gameboy.h:198: void timer_isr(void) __critical __interrupt __naked
+;src\/gameboy.h:207: void timer_isr(void) __critical __interrupt __naked
 ;	---------------------------------
 ; Function timer_isr
 ; ---------------------------------
 _timer_isr::
-;src\/gameboy.h:200: breakpoint();
+;src\/gameboy.h:209: breakpoint();
 	ld	b,b
-;src\/gameboy.h:201: __asm__("ret");
+;src\/gameboy.h:210: __asm__("ret");
 	ret
-;src\/gameboy.h:202: }
-;src\/gameboy.h:204: void vblank_isr(void) __critical __interrupt __naked
+;src\/gameboy.h:211: }
+;src\/gameboy.h:213: void vblank_isr(void) __critical __interrupt __naked
 ;	---------------------------------
 ; Function vblank_isr
 ; ---------------------------------
 _vblank_isr::
-;src\/gameboy.h:206: poll_joypad();
-;src\/gameboy.h:208: __asm__("ret");
+;src\/gameboy.h:215: poll_joypad();
+;src\/gameboy.h:217: __asm__("ret");
 	jp	_poll_joypad
-;src\/gameboy.h:209: }
-;src\/gameboy.h:211: void lcd_isr(void) __critical __interrupt __naked
+;src\/gameboy.h:218: }
+;src\/gameboy.h:220: void lcd_isr(void) __critical __interrupt __naked
 ;	---------------------------------
 ; Function lcd_isr
 ; ---------------------------------
 _lcd_isr::
-;src\/gameboy.h:213: breakpoint();
+;src\/gameboy.h:222: breakpoint();
 	ld	b,b
-;src\/gameboy.h:214: __asm__("ret");
+;src\/gameboy.h:223: __asm__("ret");
 	ret
-;src\/gameboy.h:215: }
-;src\/gameboy.h:217: void serial_isr(void) __critical __interrupt __naked
+;src\/gameboy.h:224: }
+;src\/gameboy.h:226: void serial_isr(void) __critical __interrupt __naked
 ;	---------------------------------
 ; Function serial_isr
 ; ---------------------------------
 _serial_isr::
-;src\/gameboy.h:219: breakpoint();
+;src\/gameboy.h:228: breakpoint();
 	ld	b,b
-;src\/gameboy.h:220: __asm__("ret");
+;src\/gameboy.h:229: __asm__("ret");
 	ret
-;src\/gameboy.h:221: }
-;src\/gameboy.h:223: void joypad_isr(void) __critical __interrupt __naked
+;src\/gameboy.h:230: }
+;src\/gameboy.h:232: void joypad_isr(void) __critical __interrupt __naked
 ;	---------------------------------
 ; Function joypad_isr
 ; ---------------------------------
 _joypad_isr::
-;src\/gameboy.h:225: breakpoint();
+;src\/gameboy.h:234: breakpoint();
 	ld	b,b
-;src\/gameboy.h:226: __asm__("ret");
+;src\/gameboy.h:235: __asm__("ret");
 	ret
-;src\/gameboy.h:227: }
+;src\/gameboy.h:236: }
 ;src\/friend.h:12: void main(void) {
 ;	---------------------------------
 ; Function main
@@ -2296,25 +2302,27 @@ _main::
 	nop
 ;src\/friend.h:20: draw();
 	call	_draw
+;src\/friend.h:21: dma_copy();
+	call	_dma_copy
 	jr	00102$
-;src\/friend.h:22: }
+;src\/friend.h:23: }
 	ret
-;src\/friend.h:24: void system_init(void) {
+;src\/friend.h:25: void system_init(void) {
 ;	---------------------------------
 ; Function system_init
 ; ---------------------------------
 _system_init::
-;src\/friend.h:26: __asm__("di");
+;src\/friend.h:27: __asm__("di");
 	di
-;src\/friend.h:28: while (LY < 144) {} /* wait until vblank */
+;src\/friend.h:29: while (LY < 144) {} /* wait until vblank */
 00101$:
 	ldh	a, (_LY+0)
 	sub	a, #0x90
 	jr	C,00101$
-;src\/friend.h:30: LCDC = LCDCF_OFF;
+;src\/friend.h:31: LCDC = LCDCF_OFF;
 	ld	a, #0x00
 	ldh	(_LCDC+0),a
-;src\/friend.h:34: memset(&bgmap, 0, 360);
+;src\/friend.h:35: memset(&bgmap, 0, 360);
 	ld	hl, #0x0168
 	push	hl
 	ld	hl, #0x0000
@@ -2323,7 +2331,7 @@ _system_init::
 	push	hl
 	call	_memset
 	add	sp, #6
-;src\/friend.h:36: memset(&oam, 0x00, sizeof(oam)); 
+;src\/friend.h:37: memset(&oam, 0x00, sizeof(oam)); 
 	ld	hl, #0x00a0
 	push	hl
 	ld	l, #0x00
@@ -2332,7 +2340,7 @@ _system_init::
 	push	hl
 	call	_memset
 	add	sp, #6
-;src\/friend.h:37: memset(&shadow_oam, 0x19, sizeof(oam)); 
+;src\/friend.h:38: memset(&shadow_oam, 0x19, sizeof(oam)); 
 	ld	hl, #0x00a0
 	push	hl
 	ld	l, #0x19
@@ -2341,25 +2349,25 @@ _system_init::
 	push	hl
 	call	_memset
 	add	sp, #6
-;src\/friend.h:39: BGP = 0b11100100;
+;src\/friend.h:40: BGP = 0b11100100;
 	ld	a, #0xe4
 	ldh	(_BGP+0),a
-;src\/friend.h:40: OBP0 = 0b11100100;
+;src\/friend.h:41: OBP0 = 0b11100100;
 	ld	a, #0xe4
 	ldh	(_OBP0+0),a
-;src\/friend.h:41: OBP1 = 0b11100100;
+;src\/friend.h:42: OBP1 = 0b11100100;
 	ld	a, #0xe4
 	ldh	(_OBP1+0),a
-;src\/friend.h:43: SCY = 0;
+;src\/friend.h:44: SCY = 0;
 	ld	a, #0x00
 	ldh	(_SCY+0),a
-;src\/friend.h:44: SCX = 0;
+;src\/friend.h:45: SCX = 0;
 	ld	a, #0x00
 	ldh	(_SCX+0),a
-;src\/friend.h:46: NR52 = 0;
+;src\/friend.h:47: NR52 = 0;
 	ld	a, #0x00
 	ldh	(_NR52+0),a
-;src\/friend.h:49: }
+;src\/friend.h:50: }
 	ret
 ;src\main.c:16: void puts(u8 *s)
 ;	---------------------------------
@@ -2538,21 +2546,30 @@ _init::
 	push	hl
 	call	___memcpy
 	add	sp, #6
-;src\main.c:73: puts("abcdefghijklmnopqrstuvwxyz\n");
+;src\main.c:66: oam[0].x = 40;
+	ld	hl, #(_oam + 0x0001)
+	ld	(hl), #0x28
+;src\main.c:67: oam[0].y = 40;
+	ld	hl, #_oam
+	ld	(hl), #0x28
+;src\main.c:68: oam[0].tile = 0x19;
+	ld	hl, #(_oam + 0x0002)
+	ld	(hl), #0x19
+;src\main.c:76: puts("abcdefghijklmnopqrstuvwxyz\n");
 	ld	hl, #___str_8
 	push	hl
 	call	_puts
 	add	sp, #2
-;src\main.c:79: LCDCF_OBJON;
+;src\main.c:82: LCDCF_OBJON;
 	ld	a, #0x83
 	ldh	(_LCDC+0),a
-;src\main.c:81: __asm__("ei");
+;src\main.c:84: __asm__("ei");
 	ei
-;src\main.c:82: interrupt_enable = IEF_VBLANK;
+;src\main.c:85: interrupt_enable = IEF_VBLANK;
 	ld	hl, #_IEF_VBLANK
 	ld	a, (hl)
 	ldh	(_interrupt_enable+0),a
-;src\main.c:83: }
+;src\main.c:86: }
 	ret
 ___str_8:
 	.ascii "(ld a 0x4f)"
@@ -2570,37 +2587,151 @@ ___str_8:
 	.ascii "abcdefghijklmnopqrstuvwxyz"
 	.db 0x0a
 	.db 0x00
-;src\main.c:86: void update(void)
+;src\main.c:89: void update(void)
 ;	---------------------------------
 ; Function update
 ; ---------------------------------
 _update::
-;src\main.c:90: if (step++ == 16) {
-	ld	hl, #_update_step_65536_69
+;src\main.c:93: if (step++ == 16) {
+	ld	hl, #_update_step_65536_70
 	ld	c, (hl)
 	inc	(hl)
 	ld	a, c
 	sub	a, #0x10
 	ret	NZ
-;src\main.c:91: OBP0 += 1;
+;src\main.c:94: OBP0 += 1;
 	ldh	a, (_OBP0+0)
 	inc	a
 	ldh	(_OBP0+0),a
-;src\main.c:92: OBP1 -= 1;
+;src\main.c:95: OBP1 -= 1;
 	ldh	a, (_OBP1+0)
 	add	a, #0xff
 	ldh	(_OBP1+0),a
-;src\main.c:95: step = 0;
+;src\main.c:98: step = 0;
 	ld	(hl), #0x00
-;src\main.c:97: }
+;src\main.c:100: }
 	ret
-;src\main.c:100: void draw(void)
+;src\main.c:103: void draw(void)
 ;	---------------------------------
 ; Function draw
 ; ---------------------------------
 _draw::
-;src\main.c:107: dma_copy();
-;src\main.c:108: }
-	jp	_dma_copy
+;src\main.c:105: if (btn(j_left)) {
+	ld	hl, #_joypad
+	ld	a, (hl)
+	bit	5, a
+	jr	Z,00102$
+;src\main.c:106: oam[0].x -= 1;
+	ld	bc, #_oam+1
+	ld	a, (#(_oam + 0x0001) + 0)
+	dec	a
+	ld	(bc), a
+00102$:
+;src\main.c:109: if (btn(j_right)) {
+	ld	hl, #_joypad
+	ld	a, (hl)
+	bit	4, a
+	jr	Z,00104$
+;src\main.c:110: oam[0].x += 1;
+	ld	bc, #_oam+1
+	ld	a, (#(_oam + 0x0001) + 0)
+	inc	a
+	ld	(bc), a
+00104$:
+;src\main.c:113: if (btn(j_up)) {
+	ld	hl, #_joypad
+	ld	a, (hl)
+	bit	6, a
+	jr	Z,00106$
+;src\main.c:114: oam[0].y -= 1;
+	ld	bc, #_oam+0
+	ld	a, (#_oam + 0)
+	dec	a
+	ld	(bc), a
+00106$:
+;src\main.c:117: if (btn(j_down)) {
+	ld	hl, #_joypad
+	ld	a, (hl)
+	rlca
+	jr	NC,00108$
+;src\main.c:118: oam[0].y += 1;
+	ld	bc, #_oam+0
+	ld	a, (#_oam + 0)
+	inc	a
+	ld	(bc), a
+00108$:
+;src\main.c:121: if (btnp(j_left)) {
+	ld	hl, #_previous_joypad
+	ld	c, (hl)
+	xor	a, a
+	cpl
+	ld	b, a
+	ld	a, c
+	cpl
+	ld	c, a
+	ld	hl, #_joypad
+	ld	e, (hl)
+	ld	d, #0x00
+	ld	a, c
+	and	a, e
+	ld	c, a
+	ld	a, b
+	and	a, d
+	bit	5, c
+	jr	Z,00110$
+;src\main.c:122: oam[0].x_flip -= 1;
+	ld	bc, #_oam+3
+	ld	hl, #(_oam + 0x0003) + 0
+	ld	a, (hl)
+	swap	a
+	rrca
+	and	a, #0x01
+	dec	a
+	swap	a
+	rlca
+	and	a, #0x20
+	ld	l, a
+	ld	a, (bc)
+	and	a, #0xdf
+	or	a, l
+	ld	(bc), a
+00110$:
+;src\main.c:125: if (btnp(j_right)) {
+	ld	hl, #_previous_joypad
+	ld	c, (hl)
+	xor	a, a
+	cpl
+	ld	b, a
+	ld	a, c
+	cpl
+	ld	c, a
+	ld	hl, #_joypad
+	ld	e, (hl)
+	ld	d, #0x00
+	ld	a, c
+	and	a, e
+	ld	c, a
+	ld	a, b
+	and	a, d
+	bit	4, c
+	ret	Z
+;src\main.c:126: oam[0].x_flip += 1;
+	ld	bc, #_oam+3
+	ld	hl, #(_oam + 0x0003) + 0
+	ld	a, (hl)
+	swap	a
+	rrca
+	and	a, #0x01
+	inc	a
+	swap	a
+	rlca
+	and	a, #0x20
+	ld	l, a
+	ld	a, (bc)
+	and	a, #0xdf
+	or	a, l
+	ld	(bc), a
+;src\main.c:132: }
+	ret
 	.area _CODE
 	.area _CABS (ABS)

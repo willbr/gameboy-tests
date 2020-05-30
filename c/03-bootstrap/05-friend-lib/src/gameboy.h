@@ -9,10 +9,17 @@ typedef unsigned int  u16;
 typedef          int  i16;
 
 struct Object {
-    u8 x;
     u8 y;
+    u8 x;
     u8 tile;
-    u8 flags;
+
+    u8 cgb_palette_number : 3;
+    u8 cgb_tile_bank : 1;
+
+    u8 palette_number : 1;
+    u8 x_flip : 1;
+    u8 y_flip : 1;
+    u8 priority : 1;
 };
 
 enum Joy_Button {
@@ -32,6 +39,7 @@ void poll_joypad(void);
 void dma_copy(void);
 
 #define btn(j) (joypad & j)
+#define btnp(j) ((~previous_joypad) & joypad & j)
 
 #define halt() __asm__("halt\n\tnop")
 #define nop() __asm__("nop")
@@ -125,6 +133,7 @@ volatile __at (0xFE00) struct Object oam[40];
 
 struct Object shadow_oam[40]; 
 
+volatile u8 previous_joypad = 0;
 volatile u8 joypad = 0;
 volatile u8 joypad_dpad_state = 0;
 volatile u8 joypad_btn_state = 0;
@@ -136,15 +145,15 @@ void dma_copy(void)
 {
     /*breakpoint();*/
 
-    __asm__(""
-            "ld hl, #_shadow_oam\n\t"
-            "ld a, h\n\t"
-            "ldh (_DMA), a\n\t"
-            "ld a, #0x20\n\t"
-            "$1:\n\t"
-            "dec a\n\t"
-            "jr nz, $1\n\t"
-           );
+    //__asm__(""
+            //"ld hl, #_shadow_oam\n\t"
+            //"ld a, h\n\t"
+            //"ldh (_DMA), a\n\t"
+            //"ld a, #0x20\n\t"
+            //"$1:\n\t"
+            //"dec a\n\t"
+            //"jr nz, $1\n\t"
+           //);
 }
 
 
@@ -182,12 +191,12 @@ void poll_joypad(void)
             "ld (rP1), a\n\t"
             );
 
-    /*breakpoint();*/
         joypad_btn_state = (~joypad_btn_state) & 0x0F;
         joypad_dpad_state = (~joypad_dpad_state) & 0x0F;
-    /*breakpoint();*/
+
+        previous_joypad = joypad;
+
         joypad = (joypad_dpad_state << 4) ^ joypad_btn_state;
-    /*breakpoint();*/
 }
 
 

@@ -18,6 +18,7 @@ void main(void) {
         update();
         halt();
         draw();
+        dma_copy();
     }
 }
 
