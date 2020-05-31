@@ -22,6 +22,9 @@ https://www.geeksforgeeks.org/bit-fields-c/
 ## step 2
 [ ] cls
 
+[x] tile_pset
+[x] tile_pget
+
 [ ] pset
 [ ] pget
 
@@ -53,6 +56,7 @@ https://www.geeksforgeeks.org/bit-fields-c/
 
 ## step 7
 [ ] fillp
+[ ] apply mask to tiles?
 
 ## step 8
 [ ] fix dma
