@@ -23,6 +23,8 @@ sdcc
     -mgbz80
     --no-std-crt0
     --data 0x1234
+    --dump-graphs
+    --max-allocs-per-node
     -L
     -o a.ihx
     --std-sdccxx
