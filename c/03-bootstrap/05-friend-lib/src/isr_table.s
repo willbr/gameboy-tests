@@ -5,7 +5,8 @@
 .globl _joypad_isr
 
 .module isr_table
-.area _HEADER (ABS)
+;.area _HEADER (ABS)
+.area ISR_TABLE (ABS)
 
 .org    0x40
 jp _vblank_isr
