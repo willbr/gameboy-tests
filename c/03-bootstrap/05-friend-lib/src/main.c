@@ -2,6 +2,7 @@
 #include <string.h> /* memset */
 #include "gameboy.h"
 #include "friend.h"
+#include "friend_draw.h"
 
 void puts(u8 * s);
 inline void putchar(u8 c);
@@ -57,17 +58,36 @@ enforce_screen_limit:
 
 void init(void)
 {
-    cursor.x = 0;
-    cursor.y = 0;
+    /*cursor.x = 0;*/
+    /*cursor.y = 0;*/
 
     memset(&tiles, 0, sizeof(tiles));
     memcpy(&tiles, &char_map, sizeof(char_map));
 
-    oam[0].x = 40;
-    oam[0].y = 40;
-    oam[0].tile = 0x19;
-    /*const u8 charactr_size = 16;*/
-    /*memcpy(&tiles, &char_map + (charactr_size * 8), charactr_size);*/
+    /*u8 c = 0;*/
+    /*u8 x = 0;*/
+    /*u8 y = 0;*/
+    /*static u8 p;*/
+
+    /*for (y = 0; y < 8; ++y) {*/
+        /*for (x = 0; x < 8; ++x) {*/
+            /*tile_pset(0x0, x, y, c++);*/
+
+            /*p = tile_pget(0x0, x, y);*/
+
+            /*tile_pset(0x0, x, y, p);*/
+
+            /*if (c == 4) {*/
+                /*c = 0;*/
+            /*}*/
+        /*}*/
+    /*}*/
+
+    /*static u8 ramp[4];*/
+
+    /*oam[0].x = 40;*/
+    /*oam[0].y = 40;*/
+    /*oam[0].tile = 0x19;*/
 
     puts("(ld a 0x4f)\n");
     puts("the\n");
@@ -81,58 +101,59 @@ void init(void)
         LCDCF_OBJ8 |
         LCDCF_OBJON;
 
-    __asm__("ei");
+    enable_interrupts();
     interrupt_enable = IEF_VBLANK;
 }
 
 
 void update(void)
 {
-    static u8 step = 0;
+    /*breakpoint();*/
+    /*static u8 step = 0;*/
 
-    if (step++ == 16) {
-        OBP0 += 1;
-        OBP1 -= 1;
+    /*if (step++ == 8) {*/
+        /*OBP0 += 1;*/
+        /*OBP1 -= 1;*/
 
-        /*BGP += 1;*/
-        step = 0;
-    }
+        /*[>BGP += 1;<]*/
+        /*step = 0;*/
+    /*}*/
 }
 
 
 void draw(void)
 {
-    if (btn(j_left)) {
-        oam[0].x -= 1;
-    }
+    /*if (btn(j_left)) {*/
+        /*oam[0].x -= 1;*/
+    /*}*/
 
-    if (btn(j_right)) {
-        oam[0].x += 1;
-    }
+    /*if (btn(j_right)) {*/
+        /*oam[0].x += 1;*/
+    /*}*/
 
-    if (btn(j_up)) {
-        oam[0].y -= 1;
-    }
+    /*if (btn(j_up)) {*/
+        /*oam[0].y -= 1;*/
+    /*}*/
 
-    if (btn(j_down)) {
-        oam[0].y += 1;
-    }
+    /*if (btn(j_down)) {*/
+        /*oam[0].y += 1;*/
+    /*}*/
 
-    if (btnp(j_left)) {
-        oam[0].x_flip -= 1;
-    }
+    /*if (btnp(j_left)) {*/
+        /*oam[0].x_flip -= 1;*/
+    /*}*/
 
-    if (btnp(j_right)) {
-        oam[0].x_flip += 1;
-    }
+    /*if (btnp(j_right)) {*/
+        /*oam[0].x_flip += 1;*/
+    /*}*/
 
-    if (btnp(j_up)) {
-        oam[0].y_flip -= 1;
-    }
+    /*if (btnp(j_up)) {*/
+        /*oam[0].y_flip -= 1;*/
+    /*}*/
 
-    if (btnp(j_down)) {
-        oam[0].y_flip += 1;
-    }
+    /*if (btnp(j_down)) {*/
+        /*oam[0].y_flip += 1;*/
+    /*}*/
 
     /*bgmap[ 1][ 3] = btn(j_up) ? 3 : 0;*/
     /*bgmap[ 2][ 2] = btn(j_left)  ? 3 : 0;*/

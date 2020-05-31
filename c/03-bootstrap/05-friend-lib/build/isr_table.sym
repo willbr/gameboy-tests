@@ -7,11 +7,11 @@ Symbol Table
     .__.ABS.                                                    =  0000 G
     .__.CPU.                                                    =  0000 L
     .__.H$L.                                                    =  0000 L
-  2 A$isr_table_table$11                                           0040 GR
-  3 A$isr_table_table$14                                           0048 GR
-  4 A$isr_table_table$17                                           0050 GR
-  5 A$isr_table_table$20                                           0058 GR
-  6 A$isr_table_table$23                                           0060 GR
+  2 A$isr_table_table$12                                           0040 GR
+  3 A$isr_table_table$15                                           0048 GR
+  4 A$isr_table_table$18                                           0050 GR
+  5 A$isr_table_table$21                                           0058 GR
+  6 A$isr_table_table$24                                           0060 GR
     _joypad_isr                                                    **** GX
     _lcd_isr                                                       **** GX
     _serial_isr                                                    **** GX
@@ -25,10 +25,10 @@ Hexadecimal [16-Bits]
 Area Table
 
    0 _CODE                                      size    0   flags    0
-   1 _HEADER                                    size    0   flags    8
-   2 _HEADER0                                   size    3   flags    8
-   3 _HEADER1                                   size    3   flags    8
-   4 _HEADER2                                   size    3   flags    8
-   5 _HEADER3                                   size    3   flags    8
-   6 _HEADER4                                   size    3   flags    8
+   1 ISR_TABLE                                  size    0   flags    8
+   2 ISR_TABLE0                                 size    3   flags    8
+   3 ISR_TABLE1                                 size    3   flags    8
+   4 ISR_TABLE2                                 size    3   flags    8
+   5 ISR_TABLE3                                 size    3   flags    8
+   6 ISR_TABLE4                                 size    3   flags    8
 

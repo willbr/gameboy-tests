@@ -5,20 +5,21 @@
                               5 .globl _joypad_isr
                               6 
                               7 .module isr_table
-                              8 .area _HEADER (ABS)
-                              9 
-   0040                      10 .org    0x40
-   0040 C3r00r00             11 jp _vblank_isr
-                             12 
-   0048                      13 .org    0x48
-   0048 C3r00r00             14 jp _lcd_isr
-                             15 
-   0050                      16 .org    0x50
-   0050 C3r00r00             17 jp _timer_isr
-                             18 
-   0058                      19 .org    0x58
-   0058 C3r00r00             20 jp _serial_isr
-                             21 
-   0060                      22 .org    0x60
-   0060 C3r00r00             23 jp _joypad_isr
-                             24 
+                              8 ;.area _HEADER (ABS)
+                              9 .area ISR_TABLE (ABS)
+                             10 
+   0040                      11 .org    0x40
+   0040 C3r00r00             12 jp _vblank_isr
+                             13 
+   0048                      14 .org    0x48
+   0048 C3r00r00             15 jp _lcd_isr
+                             16 
+   0050                      17 .org    0x50
+   0050 C3r00r00             18 jp _timer_isr
+                             19 
+   0058                      20 .org    0x58
+   0058 C3r00r00             21 jp _serial_isr
+                             22 
+   0060                      23 .org    0x60
+   0060 C3r00r00             24 jp _joypad_isr
+                             25 

@@ -43,6 +43,10 @@ void dma_copy(void);
 
 #define halt() __asm__("halt\n\tnop")
 #define nop() __asm__("nop")
+
+#define enable_interrupts() __asm__("ei")
+#define disable_interrupts() __asm__("di")
+
 #define breakpoint() __asm__("ld b,b")
 #define debug_msg() __asm__("ld d,d")
 
@@ -143,6 +147,7 @@ volatile u8 joypad_btn_state = 0;
 
 void dma_copy(void)
 {
+    nop();
     /*breakpoint();*/
 
     //__asm__(""

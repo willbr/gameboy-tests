@@ -9,17 +9,17 @@ S .__.ABS. Def0000
 S _timer_isr Ref0000
 S _lcd_isr Ref0000
 A _CODE size 0 flags 0 addr 0
-A _HEADER size 0 flags 8 addr 0
-A _HEADER0 size 3 flags 8 addr 40
-S A$isr_table_table$11 Def0040
-A _HEADER1 size 3 flags 8 addr 48
-S A$isr_table_table$14 Def0048
-A _HEADER2 size 3 flags 8 addr 50
-S A$isr_table_table$17 Def0050
-A _HEADER3 size 3 flags 8 addr 58
-S A$isr_table_table$20 Def0058
-A _HEADER4 size 3 flags 8 addr 60
-S A$isr_table_table$23 Def0060
+A ISR_TABLE size 0 flags 8 addr 0
+A ISR_TABLE0 size 3 flags 8 addr 40
+S A$isr_table_table$12 Def0040
+A ISR_TABLE1 size 3 flags 8 addr 48
+S A$isr_table_table$15 Def0048
+A ISR_TABLE2 size 3 flags 8 addr 50
+S A$isr_table_table$18 Def0050
+A ISR_TABLE3 size 3 flags 8 addr 58
+S A$isr_table_table$21 Def0058
+A ISR_TABLE4 size 3 flags 8 addr 60
+S A$isr_table_table$24 Def0060
 T 40 00
 R 00 00 02 00
 T 40 00 C3 00 00

@@ -9,6 +9,9 @@ void system_init(void);
 void update(void);
 void draw(void);
 
+#ifndef FRIEND_MAIN
+#define FRIEND_MAIN
+
 void main(void) {
     system_init();
 
@@ -16,15 +19,17 @@ void main(void) {
 
     while(1) {
         update();
+
         halt();
         draw();
-        dma_copy();
     }
 }
 
+#endif
+
 void system_init(void) {
     {
-        __asm__("di");
+        disable_interrupts();
 
         while (LY < 144) {} /* wait until vblank */
 
@@ -32,10 +37,10 @@ void system_init(void) {
 
         //memcpy(&tiles, &font_tiles, sizeof(font_tiles));
 
-        memset(&bgmap, 0, 360);
+        //memset(&bgmap, 0, 360);
 
-        memset(&oam, 0x00, sizeof(oam)); 
-        memset(&shadow_oam, 0x19, sizeof(oam)); 
+        //memset(&oam, 0x00, sizeof(oam)); 
+        //memset(&shadow_oam, 0x19, sizeof(oam)); 
 
         BGP = 0b11100100;
         OBP0 = 0b11100100;
@@ -45,6 +50,8 @@ void system_init(void) {
         SCX = 0;
 
         NR52 = 0;
+
+        //dma_copy();
 
     }
 }
