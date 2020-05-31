@@ -54,3 +54,7 @@ crt0.rel
 peephole optimizer
 pragma
 
+review where SDCC puts static variables
+is it the header?
+does this break ISR?
+
