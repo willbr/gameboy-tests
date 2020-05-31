@@ -5,7 +5,13 @@ $asmflags="-plosgffwy".Split()
 
 sdcc $cflags -S --asm=rgbds -o build\main.rgbds.asm src\main.c
 dir .\build\*.rgbds.asm | ForEach-Object {
-    Get-Content $_.FullName | select-string -Pattern "GLOBAL", "\d+\$\d+" -NotMatch | Set-Content ($_.FullName + ".tidy.asm")
+    Get-Content $_.FullName `
+    | Select -Skip 8 `
+    | Select-String -Pattern "GLOBAL", "\d+\$\d+" -NotMatch `
+    | Select-String -Pattern "^\s*;\s*(-)" -NotMatch `
+    | Select-String -Pattern "^\s*(section|global|ds|db)" -NotMatch `
+    | Select-String -Pattern "^\s*\.(module|globl|optsdcc|area|db|ds)" -NotMatch `
+    | Set-Content ($_.FullName + ".tidy.asm")
 }
 
 sdcc $cflags --compile-only -o build\main.rel src\main.c
