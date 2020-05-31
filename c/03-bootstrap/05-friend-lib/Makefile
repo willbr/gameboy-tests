@@ -9,3 +9,6 @@ run:
 watch:
 	cmd /c start $(BGB)	-watch .\build\hello.gb
 
+test:
+	tcc -run .\src\test.c
+
