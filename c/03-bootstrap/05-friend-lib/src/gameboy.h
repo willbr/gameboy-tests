@@ -4,9 +4,9 @@
 #include <string.h> /* memset */
 
 typedef unsigned char u8;
-typedef          char i8;
+typedef signed   char i8;
 typedef unsigned int  u16;
-typedef          int  i16;
+typedef signed   int  i16;
 
 struct Object {
     u8 y;
