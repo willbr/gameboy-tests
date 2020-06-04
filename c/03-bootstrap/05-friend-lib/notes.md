@@ -1,5 +1,11 @@
 # Friend Library
 
+move puts into it's own header
+    puts
+    putchar
+    cursor
+
+
 # Roadmap
 
 ## step 1
