@@ -6,6 +6,7 @@ parse = Lark.open('grammar.lark', parser='lalr', debug=True).parse
 if __name__ == "__main__":
     code = """
     stuff: ldb a 0x1234
+    ld a 0b0101_0101
     ld a [adr1]
     ld hl [adr2]
     add a [hl]
