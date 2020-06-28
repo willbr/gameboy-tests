@@ -1,0 +1,47 @@
+?start: (_NL* line)*
+
+line: label? expr+ _NL
+
+?expr: number
+     | NAME
+     | ESCAPED_STRING
+     | list
+     | infix
+     | index
+
+list: "(" expr* ")"
+infix: "{" expr* "}"
+index: "[" expr* "]"
+
+NAME: (LETTER | DIGIT | SYMBOL)+
+label: NAME ":"
+
+SYMBOL: /[+\-*\/=<>_]/
+
+LETTER: LOWER_CASE_LETTER | UPPER_CASE_LETTER
+LOWER_CASE_LETTER: "a".."z"
+UPPER_CASE_LETTER: "A".."Z"
+
+number: integer
+      | hexidecimal
+
+?integer: non_zero_digit ("_" | DIGIT)*
+?hexidecimal: HEX_PREFIX HEX_DIGIT ("_" | HEX_DIGIT)*
+
+HEX_PREFIX: "0x"i
+HEX_DIGIT: DIGIT | "a".."f" | "A".."F"
+
+?non_zero_digit: "1".."9"
+DIGIT: "0".."9"
+
+COMMENT: /;[^\n]*/
+
+%import common.ESCAPED_STRING
+
+%import common.WS_INLINE
+
+%ignore WS_INLINE
+%ignore COMMENT
+
+_NL: /(\r?\n[\t ]*)+/
+
