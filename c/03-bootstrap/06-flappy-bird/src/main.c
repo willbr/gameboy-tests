@@ -4,8 +4,9 @@
 #include "friend.h"
 #include "friend_draw.h"
 
-
-const i8 flap_velocity = -5;
+const i8 gravity = 1;
+const i8 flap_velocity = -2;
+#define SUBPIXELS 3
 
 
 struct Point {
@@ -65,31 +66,17 @@ void init(void)
 
 void update(void)
 {
-    static u8 move_step = 0;
-    static u8 velocity_step = 0;
-
-    move_step += 1;
 
     if (btnp(j_a)) {
-        player.y_velocity = -1;
-        move_step = 0;
+        player.y_velocity = (flap_velocity << SUBPIXELS);
         /*breakpoint();*/
+    } else {
+        player.y_velocity += gravity;
     }
 
-    player.position.y += player.y_velocity;
-
-    if (move_step == 32) {
-        move_step = 0;
-
-        player.y_velocity += 1;
-
-        velocity_step += 1;
-
-        if (velocity_step == 1) {
-            velocity_step = 0;
-
-        }
-    }
+    i8 step;
+    step = (player.y_velocity >> SUBPIXELS);
+    player.position.y += step;
 
     // remove old pipes
     // insert new pipes

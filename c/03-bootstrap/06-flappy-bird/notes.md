@@ -1,3 +1,5 @@
+https://github.com/Wireframe-Magazine/Wireframe-29/blob/master/flight.py
+
 bird
     x placeholder sprites
     x falling

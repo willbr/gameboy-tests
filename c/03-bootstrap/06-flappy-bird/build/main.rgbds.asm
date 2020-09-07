@@ -51,6 +51,7 @@
 	GLOBAL _bgmap
 	GLOBAL _tiles
 	GLOBAL _flap_velocity
+	GLOBAL _gravity
 	GLOBAL _bytes_per_tile
 	GLOBAL _bytes_per_row
 	GLOBAL _IEF_VBLANK
@@ -107,10 +108,6 @@ _player:
 	DS 4
 _game_over:
 	DS 1
-_update_move_step_65536_80:
-	DS 1
-_update_velocity_step_65536_80:
-	DS 1
 ;--------------------------------------------------------
 ; absolute external ram data
 ;--------------------------------------------------------
@@ -122,12 +119,6 @@ _update_velocity_step_65536_80:
 	SECTION "GSINIT",CODE
 	SECTION "GSFINAL",CODE
 	SECTION "GSINIT",CODE
-;src\main.c:68: static u8 move_step = 0;
-	ld	hl, _update_move_step_65536_80
-	ld	[hl], $00
-;src\main.c:69: static u8 velocity_step = 0;
-	ld	hl, _update_velocity_step_65536_80
-	ld	[hl], $00
 ;src\/gameboy.h:140: volatile u8 previous_joypad = 0;
 	ld	hl, _previous_joypad
 	ld	[hl], $00
@@ -140,12 +131,12 @@ _update_velocity_step_65536_80:
 ;src\/gameboy.h:143: volatile u8 joypad_btn_state = 0;
 	ld	hl, _joypad_btn_state
 	ld	[hl], $00
-;src\main.c:23: struct Point cursor = { .x = 0, .y = 0};
+;src\main.c:24: struct Point cursor = { .x = 0, .y = 0};
 	ld	hl, _cursor
 	ld	[hl], $00
 	ld	hl, (_cursor + 0x0001)
 	ld	[hl], $00
-;src\main.c:27: u8 game_over = 0;
+;src\main.c:28: u8 game_over = 0;
 	ld	hl, _game_over
 	ld	[hl], $00
 ;--------------------------------------------------------
@@ -2689,36 +2680,38 @@ _tile_pset::
 ;src\/friend_draw.h:65: }
 	add	sp, #4
 	ret
-;src\main.c:30: void init_player()
+;src\main.c:31: void init_player()
 ;	---------------------------------
 ; Function init_player
 ; ---------------------------------
 _init_player::
-;src\main.c:32: player.position.x = 40;
+;src\main.c:33: player.position.x = 40;
 	ld	hl, _player
 	ld	[hl], $28
-;src\main.c:33: player.position.y = 40;
+;src\main.c:34: player.position.y = 40;
 	ld	hl, (_player + 0x0001)
 	ld	[hl], $28
-;src\main.c:35: player.y_velocity = 1;
+;src\main.c:36: player.y_velocity = 1;
 	ld	hl, (_player + 0x0002)
 	ld	[hl], $01
-;src\main.c:36: player.score = 0;
+;src\main.c:37: player.score = 0;
 	ld	hl, (_player + 0x0003)
 	ld	[hl], $00
 .l00101:
-;src\main.c:37: }
+;src\main.c:38: }
 	ret
+_gravity:
+	DB $01	;  1
 _flap_velocity:
-	DB $FB	; -5
-;src\main.c:40: void init(void)
+	DB $FE	; -2
+;src\main.c:41: void init(void)
 ;	---------------------------------
 ; Function init
 ; ---------------------------------
 _init::
-;src\main.c:42: init_player();
+;src\main.c:43: init_player();
 	call	_init_player
-;src\main.c:44: memset(&oam, 0, sizeof(oam));
+;src\main.c:45: memset(&oam, 0, sizeof(oam));
 	ld	hl, $00A0
 	push	hl
 	ld	l, $00
@@ -2727,7 +2720,7 @@ _init::
 	push	hl
 	call	_memset
 	add	sp, #6
-;src\main.c:45: memset(&tiles, 0, sizeof(tiles));
+;src\main.c:46: memset(&tiles, 0, sizeof(tiles));
 	ld	hl, $0001
 	push	hl
 	ld	l, $00
@@ -2736,7 +2729,7 @@ _init::
 	push	hl
 	call	_memset
 	add	sp, #6
-;src\main.c:46: memset(&bgmap, 0, sizeof(bgmap));
+;src\main.c:47: memset(&bgmap, 0, sizeof(bgmap));
 	ld	hl, $0400
 	push	hl
 	ld	h, $00
@@ -2745,7 +2738,7 @@ _init::
 	push	hl
 	call	_memset
 	add	sp, #6
-;src\main.c:48: memcpy(&tiles, &char_map, sizeof(char_map));
+;src\main.c:49: memcpy(&tiles, &char_map, sizeof(char_map));
 	ld	hl, $0800
 	push	hl
 	ld	hl, _char_map
@@ -2754,41 +2747,36 @@ _init::
 	push	hl
 	call	___memcpy
 	add	sp, #6
-;src\main.c:50: oam[0].tile = 0x19;
+;src\main.c:51: oam[0].tile = 0x19;
 	ld	hl, (_oam + 0x0002)
 	ld	[hl], $19
-;src\main.c:51: oam[1].tile = 0x19;
+;src\main.c:52: oam[1].tile = 0x19;
 	ld	hl, (_oam + 0x0006)
 	ld	[hl], $19
-;src\main.c:52: oam[2].tile = 0x19;
+;src\main.c:53: oam[2].tile = 0x19;
 	ld	hl, (_oam + 0x000a)
 	ld	[hl], $19
-;src\main.c:53: oam[3].tile = 0x19;
+;src\main.c:54: oam[3].tile = 0x19;
 	ld	hl, (_oam + 0x000e)
 	ld	[hl], $19
-;src\main.c:59: LCDCF_OBJON;
+;src\main.c:60: LCDCF_OBJON;
 	ld	a, $83
 	ldh	(_LCDC+0),a
-;src\main.c:61: enable_interrupts();
+;src\main.c:62: enable_interrupts();
 	ei
-;src\main.c:62: interrupt_enable = IEF_VBLANK;
+;src\main.c:63: interrupt_enable = IEF_VBLANK;
 	ld	hl, _IEF_VBLANK
 	ld	a, [hl]
 	ldh	(_interrupt_enable+0),a
 .l00101:
-;src\main.c:63: }
+;src\main.c:64: }
 	ret
-;src\main.c:66: void update(void)
+;src\main.c:67: void update(void)
 ;	---------------------------------
 ; Function update
 ; ---------------------------------
 _update::
-;src\main.c:71: move_step += 1;
-	ld	hl, _update_move_step_65536_80
-	ld	a, [hl]
-	inc	a
-	ld	[hl], a
-;src\main.c:73: if (btnp(j_a)) {
+;src\main.c:70: if (btnp(j_a)) {
 	ld	hl, _previous_joypad
 	ld	c, [hl]
 	xor	a, a
@@ -2807,111 +2795,97 @@ _update::
 	and	a, d
 	bit	0, c
 	jr	Z,.l00102
-.l00131:
-;src\main.c:74: player.y_velocity = -1;
-	ld	hl, (_player + 0x0002)
-	ld	[hl], $FF
-;src\main.c:75: move_step = 0;
-	ld	hl, _update_move_step_65536_80
-	ld	[hl], $00
+.l00118:
+;src\main.c:71: player.y_velocity = (flap_velocity << SUBPIXELS);
+	ld	bc, _player+2
+	ld	hl, _flap_velocity
+	ld	a, [hl]
+	add	a, a
+	add	a, a
+	add	a, a
+	ld	[bc], a
+	jr	.l00103
 .l00102:
-;src\main.c:79: player.position.y += player.y_velocity;
-	ld	hl, (_player + 0x0001) + 0
-	ld	c, [hl]
-	ld	a, ((_player + 0x0002) + 0)
-	add	a, c
-	ld	hl, (_player + 0x0001)
-	ld	[hl], a
-;src\main.c:81: if (move_step == 32) {
-	ld	hl, _update_move_step_65536_80
+;src\main.c:74: player.y_velocity += gravity;
+	ld	bc, _player+2
+	ld	a, [bc]
+	ld	e, a
+	ld	hl, _gravity
 	ld	a, [hl]
-	sub	a, $20
-	jr	Z,.l00133
-.l00132:
-	jr	.l00106
-.l00133:
-;src\main.c:82: move_step = 0;
-	ld	hl, _update_move_step_65536_80
-	ld	[hl], $00
-;src\main.c:84: player.y_velocity += 1;
+	add	a, e
+	ld	[bc], a
+.l00103:
+;src\main.c:78: step = (player.y_velocity >> SUBPIXELS);
 	ld	a, ((_player + 0x0002) + 0)
-	inc	a
-	ld	hl, (_player + 0x0002)
-	ld	[hl], a
-;src\main.c:86: velocity_step += 1;
-	ld	hl, _update_velocity_step_65536_80
-	ld	a, [hl]
-	inc	a
-;src\main.c:88: if (velocity_step == 1) {
-	ld	[hl],a
-	dec	a
-	jr	Z,.l00135
-.l00134:
-	jr	.l00106
-.l00135:
-;src\main.c:89: velocity_step = 0;
-	ld	hl, _update_velocity_step_65536_80
-	ld	[hl], $00
-.l00106:
-;src\main.c:99: if (player.position.y > (160 - 16)) {
-	ld	hl, (_player + 0x0001) + 0
-	ld	c, [hl]
+	sra	a
+	sra	a
+	sra	a
+;src\main.c:79: player.position.y += step;
+	ld	bc, _player + 1
+	push	af
+	ld	a, [bc]
+	ld	e, a
+	pop	af
+	add	a, e
+;src\main.c:86: if (player.position.y > (160 - 16)) {
+	ld	[bc],a
+	ld	c, a
 	ld	a, $90
 	sub	a, c
 	ret	NC
-;src\main.c:101: OBP0 += 1;
+;src\main.c:88: OBP0 += 1;
 	ldh	a, (_OBP0+0)
 	inc	a
 	ldh	(_OBP0+0),a
-;src\main.c:102: init_player();
+;src\main.c:89: init_player();
 	call	_init_player
-.l00109:
-;src\main.c:104: }
+.l00106:
+;src\main.c:91: }
 	ret
-;src\main.c:107: void draw(void)
+;src\main.c:94: void draw(void)
 ;	---------------------------------
 ; Function draw
 ; ---------------------------------
 _draw::
-;src\main.c:109: oam[0].x = player.position.x;
+;src\main.c:96: oam[0].x = player.position.x;
 	ld	de, _oam+1
 	ld	bc, _player+0
 	ld	a, [bc]
 	ld	[de], a
-;src\main.c:110: oam[0].y = player.position.y;
+;src\main.c:97: oam[0].y = player.position.y;
 	ld	a, ((_player + 0x0001) + 0)
 	ld	hl, _oam
 	ld	[hl], a
-;src\main.c:112: oam[1].x = player.position.x + 8;
+;src\main.c:99: oam[1].x = player.position.x + 8;
 	ld	de, _oam+5
 	ld	a, [bc]
 	add	a, $08
 	ld	[de], a
-;src\main.c:113: oam[1].y = player.position.y;
+;src\main.c:100: oam[1].y = player.position.y;
 	ld	a, ((_player + 0x0001) + 0)
 	ld	hl, (_oam + 0x0004)
 	ld	[hl], a
-;src\main.c:115: oam[2].x = player.position.x;
+;src\main.c:102: oam[2].x = player.position.x;
 	ld	de, _oam+9
 	ld	a, [bc]
 	ld	[de], a
-;src\main.c:116: oam[2].y = player.position.y + 8;
+;src\main.c:103: oam[2].y = player.position.y + 8;
 	ld	a, ((_player + 0x0001) + 0)
 	add	a, $08
 	ld	hl, (_oam + 0x0008)
 	ld	[hl], a
-;src\main.c:118: oam[3].x = player.position.x + 8;
+;src\main.c:105: oam[3].x = player.position.x + 8;
 	ld	de, _oam+13
 	ld	a, [bc]
 	add	a, $08
 	ld	[de], a
-;src\main.c:119: oam[3].y = player.position.y + 8;
+;src\main.c:106: oam[3].y = player.position.y + 8;
 	ld	bc, _oam+12
 	ld	a, ((_player + 0x0001) + 0)
 	add	a, $08
 	ld	[bc], a
 .l00101:
-;src\main.c:157: }
+;src\main.c:144: }
 	ret
 	SECTION "src\main.c_CODE",CODE
 	SECTION "CABS (ABS)",CODE
